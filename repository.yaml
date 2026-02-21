@@ -1,3 +1,5 @@
-name: Dispatcharr Add-on Repository
-url: https://github.com/esbnetworking/ha-dispatcharr-addon
-maintainer: Jonathan Mahady
+{
+    "name": "Dispatcharr Add-on Repository"
+    "url": "https://github.com/esbnetworking/ha-dispatcharr-addon"
+    "maintainer": "Jonathan Mahady"
+}
