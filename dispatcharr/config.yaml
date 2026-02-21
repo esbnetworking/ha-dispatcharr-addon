@@ -26,6 +26,6 @@ schema:
   DISPATCHARR_ENV: str
   REDIS_HOST: str
   CELERY_BROKER_URL: str
-  DISPATCHARR_LOG_LEVEL: list(debug|info|warning|error)
-  UWSGI_NICE_LEVEL: int(-20,19)
-  CELERY_NICE_LEVEL: int(-20,19)
+  DISPATCHARR_LOG_LEVEL: "list(debug|info|warning|error)"
+  UWSGI_NICE_LEVEL: "int(-20;19)"
+  CELERY_NICE_LEVEL: "int(-20;19)"
