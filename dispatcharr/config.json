@@ -1,0 +1,24 @@
+{
+  "name": "Dispatcharr",
+  "version": "1.0.0",
+  "slug": "dispatcharr",
+  "description": "Dispatcharr IPTV management",
+  "startup": "services",
+  "boot": "auto",
+  "init": false,
+  "arch": ["aarch64", "amd64"],
+  "image": "ghcr.io/dispatcharr/dispatcharr:latest",
+  "host_network": true,
+  "auto_update": true,
+  "map": [
+    "config:rw",
+    "media:rw",
+    "share:rw"
+  ],
+  "environment": {
+    "DISPATCHARR_ENV": "aio",
+    "REDIS_HOST": "localhost"
+  },
+  "options": {},
+  "schema": {}
+}
