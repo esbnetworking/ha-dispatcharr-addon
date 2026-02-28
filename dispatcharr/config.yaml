@@ -1,9 +1,9 @@
 name: "Dispatcharr"
 description: "Dispatcharr IPTV management"
-version: "latest"
+version: "0.21"
 slug: "dispatcharr"
 arch:
-  - aarch64  # Specific for Raspberry Pi 4 (64-bit)
+  - aarch64
 startup: application
 boot: auto
 image: "ghcr.io/dispatcharr/dispatcharr"
@@ -20,7 +20,7 @@ options:
   REDIS_HOST: "localhost"
   CELERY_BROKER_URL: "redis://localhost:6379/0"
   DISPATCHARR_LOG_LEVEL: "info"
-  UWSGI_NICE_LEVEL: -5  # Higher priority recommended for streaming on Pi 4
+  UWSGI_NICE_LEVEL: -5
   CELERY_NICE_LEVEL: 5
 schema:
   DISPATCHARR_ENV: str
