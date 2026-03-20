@@ -1,6 +1,6 @@
 name: "Dispatcharr"
 description: "Dispatcharr IPTV management"
-version: "0.20.1-20260227222824"
+version: "0.21.1-20260318031917"
 slug: "dispatcharr"
 arch:
   - aarch64
