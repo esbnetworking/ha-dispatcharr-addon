@@ -11,7 +11,7 @@ ports:
   9191/tcp: 9191
 map:
   - addon_config:rw
-  path: /data
+  target: /data
 # Pi 4 specific: Enables GPU access for FFmpeg transcoding
 video: true
 privileged:
