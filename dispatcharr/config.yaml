@@ -9,6 +9,8 @@ boot: auto
 image: "ghcr.io/dispatcharr/dispatcharr"
 ports:
   9191/tcp: 9191
+map:
+  - name: addon_config:rw
 # Pi 4 specific: Enables GPU access for FFmpeg transcoding
 video: true
 privileged:
