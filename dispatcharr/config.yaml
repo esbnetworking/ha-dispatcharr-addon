@@ -7,7 +7,7 @@ arch:
 startup: application
 boot: auto
 map:
-  - addon_config:rw
+  - config:rw
   - share:rw
 ports:
   9191/tcp: 9191
