@@ -23,7 +23,19 @@ if [ ! -L "/data/export" ]; then
     ln -s /share/dispatcharr/export /data/export
 fi
 
-# 5. Start Dispatcharr directly
-# Using 'exec' ensures the app receives shutdown signals from Home Assistant
+# 5. FIND THE ACTUAL BINARY
+# This looks specifically for the 'dispatcharr' command inside the app's environment
+BINARY_PATH=$(find /dispatcharrpy/bin -name "dispatcharr" -type f)
+
+if [ -z "$BINARY_PATH" ]; then
+    echo "ERROR: Could not find the dispatcharr binary in /dispatcharrpy/bin"
+    echo "Available files in /dispatcharrpy/bin are:"
+    ls /dispatcharrpy/bin
+    exit 1
+fi
+
+echo "Found binary at: $BINARY_PATH"
 echo "Launching Dispatcharr..."
-exec /dispatcharrpy/bin/dispatcharr
+
+# 5. Launch using the discovered path
+exec "$BINARY_PATH"
