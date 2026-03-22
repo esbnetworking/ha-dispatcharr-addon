@@ -32,6 +32,10 @@ if [ "$REDIS_HOST" == "localhost" ]; then
     redis-server --daemonize yes
 fi
 
+bashio::log.info "Ensuring correct permissions on $DISPATCHARR_DATA"
+chown -R root:root "$DISPATCHARR_DATA"
+chmod -R 755 "$DISPATCHARR_DATA"
+
 bashio::log.info "Launching Dispatcharr (Mode: $DISPATCHARR_ENV)..."
 
 # --- 5. Execute the App ---
