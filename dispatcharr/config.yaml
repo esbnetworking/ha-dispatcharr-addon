@@ -16,7 +16,7 @@ video: true
 privileged:
   - SYS_NICE
 options:
-  DISPATCHARR_DATA: "/config/dispatcharr"
+  DISPATCHARR_DATA: "/data"
   DISPATCHARR_ENV: "aio"
   REDIS_HOST: "localhost"
   CELERY_BROKER_URL: "redis://localhost:6379/0"
