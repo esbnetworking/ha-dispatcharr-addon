@@ -1,11 +1,10 @@
-# Use the official Dispatcharr image
 FROM ghcr.io/dispatcharr/dispatcharr:latest
-
-# Copy our custom initialization script
+LABEL io.hass.version="latest" \
+      io.hass.type="addon" \
+      io.hass.arch="aarch64|amd64"
+WORKDIR /app
+# Copy run script
 COPY run.sh /run.sh
+RUN chmod +x /run.sh
 
-# Ensure the script is executable
-RUN chmod a+x /run.sh
-
-# Hijack the entrypoint to run our symlink script first
-ENTRYPOINT [ "/run.sh" ]
+CMD [ "/run.sh" ]
