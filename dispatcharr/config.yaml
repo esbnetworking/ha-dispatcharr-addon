@@ -4,7 +4,6 @@ version: "0.21.1-20260318031917"
 slug: "dispatcharr"
 arch:
   - aarch64
-init: false
 startup: application
 boot: auto
 map:
