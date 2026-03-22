@@ -23,4 +23,4 @@ if [ ! -L "/data/export" ]; then
     ln -s /share/dispatcharr/export /data/export
 fi
 
-exec /usr/bin/dispatcher
+exec /app/dispatcharr
