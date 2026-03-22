@@ -8,6 +8,7 @@ startup: application
 boot: auto
 map:
   - addon_config:rw
+  - share:rw
 ports:
   9191/tcp: 9191
 # Pi 4 specific: Enables GPU access for FFmpeg transcoding
@@ -15,7 +16,7 @@ video: true
 privileged:
   - SYS_NICE
 options:
-  DISPATCHARR_DATA: "/config"
+  DISPATCHARR_DATA: "/data"
   DISPATCHARR_ENV: "aio"
   REDIS_HOST: "localhost"
   CELERY_BROKER_URL: "redis://localhost:6379/0"
