@@ -26,4 +26,4 @@ fi
 # 5. Start Dispatcharr directly
 # Using 'exec' ensures the app receives shutdown signals from Home Assistant
 echo "Launching Dispatcharr..."
-exec /dispatcharrpy/bin/python3 /app/main.py
+exec /dispatcharrpy/bin/dispatcharr
