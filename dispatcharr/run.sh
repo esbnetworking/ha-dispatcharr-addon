@@ -23,9 +23,13 @@ if [ ! -L "/data/export" ]; then
     ln -s /share/dispatcharr/export /data/export
 fi
 
-# 5. Launch the official Dispatcharr entrypoint
-# In the ghcr.io image, this is the command that starts the AIO (All-In-One) service.
-echo "Launching official startup sequence..."
-
-# We use the full path to the internal init script
-exec /usr/bin/tini -- /docker-entrypoint.sh
+# 5. Search for the entrypoint and run it
+# We check the two most common locations for Dispatcharr
+if [ -f "/entrypoint.sh" ]; then
+    echo "Found entrypoint at root. Launching..."
+    chmod +x /entrypoint.sh
+    exec /entrypoint.sh
+elif [ -f "/app/entrypoint.sh" ]; then
+    echo "Found entrypoint in /app. Launching..."
+    chmod +x /app/entrypoint.sh
+    exec /app/entrypoint.sh
