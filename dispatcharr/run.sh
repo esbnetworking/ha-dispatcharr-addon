@@ -23,13 +23,4 @@ if [ ! -L "/data/export" ]; then
     ln -s /share/dispatcharr/export /data/export
 fi
 
-# 5. Search for the entrypoint and run it
-# We check the two most common locations for Dispatcharr
-if [ -f "/entrypoint.sh" ]; then
-    echo "Found entrypoint at root. Launching..."
-    chmod +x /entrypoint.sh
-    exec /entrypoint.sh
-elif [ -f "/app/entrypoint.sh" ]; then
-    echo "Found entrypoint in /app. Launching..."
-    chmod +x /app/entrypoint.sh
-    exec /app/entrypoint.sh
+exec /usr/bin/dispatcher
