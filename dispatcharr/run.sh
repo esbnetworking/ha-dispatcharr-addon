@@ -23,19 +23,9 @@ if [ ! -L "/data/export" ]; then
     ln -s /share/dispatcharr/export /data/export
 fi
 
-# 5. FIND THE ACTUAL BINARY
-# This looks specifically for the 'dispatcharr' command inside the app's environment
-BINARY_PATH=$(find /dispatcharrpy/bin -name "dispatcharr" -type f)
+# 5. Launch the official Dispatcharr entrypoint
+# In the ghcr.io image, this is the command that starts the AIO (All-In-One) service.
+echo "Launching official startup sequence..."
 
-if [ -z "$BINARY_PATH" ]; then
-    echo "ERROR: Could not find the dispatcharr binary in /dispatcharrpy/bin"
-    echo "Available files in /dispatcharrpy/bin are:"
-    ls /dispatcharrpy/bin
-    exit 1
-fi
-
-echo "Found binary at: $BINARY_PATH"
-echo "Launching Dispatcharr..."
-
-# 5. Launch using the discovered path
-exec "$BINARY_PATH"
+# We use the full path to the internal init script
+exec /usr/bin/tini -- /docker-entrypoint.sh
