@@ -2,26 +2,28 @@
 
 echo "Starting Dispatcharr Add-on Wrapper..."
 
-# 1. Create host-accessible folders inside Home Assistant's 'share' directory
+# 1. Create host-accessible folders
 mkdir -p /share/dispatcharr/plugins
 mkdir -p /share/dispatcharr/export
 
-# 2. Ensure the standard /data directory exists (from the 'data' mapping)
+# 2. Ensure /data exists
 mkdir -p /data
 
-# 3. Symlink the internal Dispatcharr plugins folder
+# 3. Symlink Plugins
 if [ ! -L "/data/plugins" ]; then
     echo "Linking /share/dispatcharr/plugins to /data/plugins..."
     rm -rf /data/plugins
     ln -s /share/dispatcharr/plugins /data/plugins
 fi
 
-# 4. Symlink the internal Dispatcharr export folder
+# 4. Symlink Exports
 if [ ! -L "/data/export" ]; then
     echo "Linking /share/dispatcharr/export to /data/export..."
     rm -rf /data/export
     ln -s /share/dispatcharr/export /data/export
 fi
 
-# 5. Execute the original Dispatcharr container entrypoint/CMD
-exec /entrypoint.sh "$@"
+# 5. Start Dispatcharr directly
+# Using 'exec' ensures the app receives shutdown signals from Home Assistant
+echo "Launching Dispatcharr..."
+exec python3 -m dispatcharr
