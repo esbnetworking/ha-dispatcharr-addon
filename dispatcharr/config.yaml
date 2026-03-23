@@ -4,11 +4,11 @@ version: "0.21.1-20260318031917"
 slug: "dispatcharr"
 arch:
   - aarch64
+  - amd64
 startup: application
 boot: auto
 map:
-  - share:rw
-  - data
+  - addon_config:rw
 ports:
   9191/tcp: 9191
 # Pi 4 specific: Enables GPU access for FFmpeg transcoding
