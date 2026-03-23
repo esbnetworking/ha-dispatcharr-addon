@@ -5,6 +5,8 @@ slug: "dispatcharr"
 startup: services
 boot: auto
 
+host_network: false
+
 arch:
   - amd64
   - aarch64
@@ -14,6 +16,7 @@ ports:
 
 map:
   - addon_config:rw
+
 
 options: {}
 schema: {}
