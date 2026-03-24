@@ -5,7 +5,7 @@ slug: "dispatcharr"
 startup: services
 boot: auto
 
-host_network: false
+init: true
 
 arch:
   - amd64
