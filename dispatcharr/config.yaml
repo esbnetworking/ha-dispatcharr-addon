@@ -14,11 +14,5 @@ arch:
 ports:
   9191/tcp: 9191
 
-map:
-  - type: addon_config
-    path: /data
-    read_only: false
-
-
 options: {}
 schema: {}
