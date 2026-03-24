@@ -9,6 +9,11 @@ arch:
   - amd64
   - aarch64
 
+map:
+  - type: addon_config
+    path: /data
+    read_only: false
+
 ports:
   9191/tcp: 9191
 
