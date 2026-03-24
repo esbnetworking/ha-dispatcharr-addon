@@ -9,6 +9,9 @@ arch:
   - amd64
   - aarch64
 
+map:
+  - addon_config:rw
+
 ports:
   9191/tcp: 9191
 
