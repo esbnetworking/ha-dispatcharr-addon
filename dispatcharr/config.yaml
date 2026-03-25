@@ -11,7 +11,7 @@ arch:
 
 map:
   - type: addon_config
-    path: /app/data
+    path: /app/apps
     read_only: false
 
 ports:
