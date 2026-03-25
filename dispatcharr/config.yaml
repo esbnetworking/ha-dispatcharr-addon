@@ -10,7 +10,9 @@ arch:
   - aarch64
 
 map:
-  - addon_config:rw
+  - type: addon_config
+    path: /app/data
+    read_only: false
 
 ports:
   9191/tcp: 9191
