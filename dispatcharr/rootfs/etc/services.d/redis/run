@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv bashio
+exec redis-server --daemonize no
