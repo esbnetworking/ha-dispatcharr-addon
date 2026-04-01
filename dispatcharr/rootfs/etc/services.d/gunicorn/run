@@ -1,1 +1,4 @@
-
+#!/usr/bin/with-contenv bashio
+export $(grep -v '^#' /app/.env | xargs)
+cd /app
+exec gunicorn --workers=4 --worker-class=gevent --timeout=300 --bind 0.0.0.0:8000 dispatcharr.wsgi:application
