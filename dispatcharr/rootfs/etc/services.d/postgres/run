@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv bashio
+exec su-exec postgres postgres -D /data/db
