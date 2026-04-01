@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bashio
+export $(grep -v '^#' /app/.env | xargs)
+cd /app
+exec celery -A dispatcharr beat -l info
