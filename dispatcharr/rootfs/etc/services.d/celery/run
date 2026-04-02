@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bashio
-export $(grep -v '^#' /app/.env | xargs)
 cd /app
+export PYTHONPATH="/app"
+export $(grep -v '^#' /app/.env | xargs)
 exec celery -A dispatcharr worker -l info
