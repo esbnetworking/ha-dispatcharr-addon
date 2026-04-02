@@ -29,6 +29,7 @@ ENV UV_PROJECT_ENVIRONMENT="/app/env"
 RUN pip install --no-cache-dir uv gunicorn && \
     USER_BIN=$(python3 -m site --user-base)/bin && \
     export PATH="$USER_BIN:$PATH" && \
+    hash -r && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
