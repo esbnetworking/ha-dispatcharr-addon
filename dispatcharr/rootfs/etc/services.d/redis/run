@@ -1,2 +1,5 @@
+cd /app
+export PYTHONPATH="/app"
+export $(grep -v '^#' /app/.env | xargs)
 #!/usr/bin/with-contenv bashio
 exec redis-server --daemonize no
