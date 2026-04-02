@@ -23,7 +23,8 @@ chmod 775 /run/postgresql
 
 # Ensure the DB directory has correct permissions
 mkdir -p /data/db
-chown -R postgres:postgres /data/d
+chown -R postgres:postgres /data/db
+chmod 700 /data/db
 
 # 2. Bridge mapping (Link HA's /data to the app's expected internal paths)
 ln -sf "$DATA_DIR/media" "$APP_DIR/media"
@@ -64,5 +65,7 @@ fi
 # 5. Run Migrations & Collectstatic
 bashio::log.info "Running Django migrations..."
 export $(grep -v '^#' "$APP_DIR/.env" | xargs)
-python3 manage.py migrate --noinput
-python3 manage.py collectstatic --noinput
+
+# Use the full path to the environment we built in the Dockerfile
+/app/env/bin/python3 manage.py migrate --noinput
+/app/env/bin/python3 manage.py collectstatic --noinput
