@@ -40,9 +40,13 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    uv pip install --python /app/env --no-cache gunicorn && \
+    # Add the index strategy to allow uv to look beyond the HA wheels index
+    uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match gunicorn && \
+    # Extract requirements
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | grep -v "torch" > /tmp/requirements.txt && \
-    uv pip install --python /app/env --no-cache -r /tmp/requirements.txt && \
+    # Apply the same index strategy here to find rapidfuzz 3.14.3 on PyPI
+    uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match -r /tmp/requirements.txt && \
+    # Install the app in editable mode
     uv pip install --python /app/env --no-cache --no-deps -e .
 
 # 6. Build Frontend
