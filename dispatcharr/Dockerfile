@@ -40,7 +40,7 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    # 1. Core Web, API, and Utility stack
+    # 1. Core Web, API, and Streaming stack
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match \
         gunicorn \
         daphne \
@@ -54,7 +54,10 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
         regex \
         pytz \
         python-dotenv \
-        drf-spectacular && \
+        drf-spectacular \
+        m3u8 \
+        requests \
+        aiohttp && \
     # 2. Extract remaining requirements (minus ML/Torch)
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | \
     grep -vE "torch|sentence-transformers|transformers" > /tmp/requirements.txt && \
