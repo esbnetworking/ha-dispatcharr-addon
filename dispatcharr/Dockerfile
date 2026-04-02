@@ -27,17 +27,15 @@ ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
 # CLEAR Home Assistant environment variables and force PyPI
 RUN pip install --no-cache-dir uv gunicorn && \
-    USER_BIN=$(python3 -m site --user-base)/bin && \
-    export PATH="$USER_BIN:$PATH" && \
-    hash -r && \
+    UV_BIN_DIR=$(python3 -m site --user-base)/bin && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
-    uv venv /app/env --python 3.13 --clear && \
-    uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
+    $UV_BIN_DIR/uv venv /app/env --python 3.13 --clear && \
+    $UV_BIN_DIR/uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
     sed -i '/torch/d' requirements.txt && \
-    uv pip install --python /app/env --no-cache -r requirements.txt && \
-    uv pip install --python /app/env gunicorn
+    $UV_BIN_DIR/uv pip install --python /app/env --no-cache -r requirements.txt && \
+    $UV_BIN_DIR/uv pip install --python /app/env gunicorn
 
 # Build Frontend
 WORKDIR /app/frontend
