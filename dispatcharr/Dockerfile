@@ -4,28 +4,29 @@ FROM $BUILD_FROM
 LABEL io.hass.version="1.0.0" \
       io.hass.type="addon" \
       io.hass.arch="aarch64|amd64"
-# Install Alpine dependencies (including streamlink)
+# 1. ADDED: libxml2-dev and libxslt-dev (required for lxml compilation)
 RUN apk add --no-cache \
     python3 py3-pip python3-dev \
     nodejs npm git curl wget \
     postgresql postgresql-dev postgresql-contrib \
     redis ffmpeg nginx streamlink \
     gcc musl-dev linux-headers build-base \
+    libxml2-dev libxslt-dev \
     su-exec
 
 WORKDIR /app
 
-# Clone Dispatcharr (Main branch)
+# Clone Dispatcharr
 RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
 
-# Setup Python environment using uv
+# Setup Python environment
 RUN python3 -m venv /app/env
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
-# Install uv and sync modern pyproject.toml dependencies
+# 2. UPDATED: Added the index strategy flag to allow uv to find lxml 6.0.2 on PyPI
 RUN pip install --no-cache-dir uv gunicorn && \
-    uv sync --no-dev
+    uv sync --no-dev --index-strategy unsafe-best-match
 
 # Build Frontend
 WORKDIR /app/frontend
