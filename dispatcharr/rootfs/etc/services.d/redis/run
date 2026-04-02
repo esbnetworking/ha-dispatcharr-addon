@@ -6,5 +6,5 @@ export PATH="/app/env/bin:$PATH"
 if [ -f /app/.env ]; then
     export $(grep -v '^#' /app/.env | xargs)
 fi
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/env bashio
 exec redis-server /etc/redis.conf
