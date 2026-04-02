@@ -31,11 +31,11 @@ ENV UV_PROJECT_ENVIRONMENT="/app/env"
 # 3. Use --no-deps to force the final install
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    export PATH="/app/env/bin:$PATH" && \
-    pip install --no-cache-dir gunicorn && \
-    pip install --no-cache-dir . --no-deps && \
-    pip install --no-cache-dir $(grep -v "torch" pyproject.toml | grep -oE '[a-zA-Z0-9_-]+>=[0-9.]+|[a-zA-Z0-9_-]+==[0-9.]+') || true && \
-    /app/env/bin/pip install --no-cache-dir . --no-deps
+    uv pip install --python /app/env --no-cache gunicorn && \
+    uv pip install --python /app/env --no-cache --no-deps . && \
+    grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | grep -v "torch" > /tmp/requirements.txt && \
+    uv pip install --python /app/env --no-cache -r /tmp/requirements.txt && \
+    /app/env/bin/python3 -m pip install --no-cache-dir . --no-deps --break-system-packages || true
 
 # Build Frontend
 WORKDIR /app/frontend
