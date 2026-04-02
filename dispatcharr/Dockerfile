@@ -24,11 +24,13 @@ RUN python3 -m venv /app/env
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
-# UPDATED: We force uv to use the standard PyPI and ignore the mismatched HA wheels
+# CLEAR Home Assistant environment variables and force PyPI
 RUN pip install --no-cache-dir uv gunicorn && \
+    export UV_EXTRA_INDEX_URL="" && \
+    export PIP_EXTRA_INDEX_URL="" && \
     uv sync --no-dev \
     --index-url https://pypi.org/simple \
-    --index-strategy unsafe-best-match
+    --index-strategy manual
 
 # Build Frontend
 WORKDIR /app/frontend
