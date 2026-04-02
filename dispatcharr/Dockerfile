@@ -33,10 +33,8 @@ RUN export UV_EXTRA_INDEX_URL="" && \
     uv venv /app/env --python 3.13 --clear && \
     uv export --no-dev --no-hashes --format requirements-txt > /tmp/reqs.txt && \
     sed -i '/torch/d' /tmp/reqs.txt && \
-    cd /tmp && \
-    uv pip install --python /app/env --no-cache -r reqs.txt && \
-    cd /app && \
-    /app/env/bin/pip install --no-cache-dir . gunicorn
+    uv pip install --python /app/env --no-cache --no-config -r /tmp/reqs.txt && \
+    /app/env/bin/pip install --no-cache-dir gunicorn .
 
 # Build Frontend
 WORKDIR /app/frontend
