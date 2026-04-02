@@ -40,7 +40,7 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    # 1. Core Web, API, and Streaming stack
+    # 1. Consolidated Core Stack (Web, API, Streaming, Utilities)
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match \
         gunicorn \
         daphne \
@@ -57,13 +57,16 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
         drf-spectacular \
         m3u8 \
         requests \
-        aiohttp && \
+        aiohttp \
+        whitenoise \
+        tzdata \
+        celery && \
     # 2. Extract remaining requirements (minus ML/Torch)
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | \
     grep -vE "torch|sentence-transformers|transformers" > /tmp/requirements.txt && \
-    # 3. Install remaining dependencies
+    # 3. Install remaining dependencies from filtered list
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match -r /tmp/requirements.txt && \
-    # 4. Install app in editable mode
+    # 4. Final App Install
     uv pip install --python /app/env --no-cache --no-deps -e .
 
 # 6. Build Frontend
