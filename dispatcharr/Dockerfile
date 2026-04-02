@@ -12,7 +12,8 @@ RUN apk add --no-cache \
     redis ffmpeg nginx streamlink \
     gcc musl-dev linux-headers build-base \
     libxml2-dev libxslt-dev \
-    su-exec
+    su-exec \
+    ca-certificates
 
 WORKDIR /app
 
@@ -25,15 +26,16 @@ ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
 # CLEAR Home Assistant environment variables and force PyPI
-RUN pip install --no-cache-dir uv gunicorn && \
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    source $HOME/.cargo/env && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
-    /usr/bin/python3 -m uv venv /app/env --python 3.13 --clear && \
-    /usr/bin/python3 -m uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
+    uv venv /app/env --python 3.13 --clear && \
+    uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
     sed -i '/torch/d' requirements.txt && \
-    /usr/bin/python3 -m uv pip install --python /app/env --no-cache -r requirements.txt && \
-    /usr/bin/python3 -m uv pip install --python /app/env gunicorn
+    uv pip install --python /app/env --no-cache -r requirements.txt && \
+    uv pip install --python /app/env gunicorn
 
 # Build Frontend
 WORKDIR /app/frontend
