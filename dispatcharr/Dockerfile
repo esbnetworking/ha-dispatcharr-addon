@@ -40,7 +40,7 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    # 1. Add 'djangorestframework-simplejwt' and 'django-extensions'
+    # 1. Core Web, API, and Utility stack
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match \
         gunicorn \
         daphne \
@@ -51,13 +51,16 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
         django-extensions \
         psycopg2-binary \
         redis \
-        regex && \
-    # 2. Extract requirements but strip ML/Torch
+        regex \
+        pytz \
+        python-dotenv \
+        drf-spectacular && \
+    # 2. Extract remaining requirements (minus ML/Torch)
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | \
     grep -vE "torch|sentence-transformers|transformers" > /tmp/requirements.txt && \
-    # 3. Install the rest
+    # 3. Install remaining dependencies
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match -r /tmp/requirements.txt && \
-    # 4. Final Editable Install
+    # 4. Install app in editable mode
     uv pip install --python /app/env --no-cache --no-deps -e .
 
 # 6. Build Frontend
