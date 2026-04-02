@@ -26,20 +26,17 @@ RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
-# CLEAR Home Assistant environment variables and force PyPI
+# 1. Setup env and build the 3.13 venv
+# 2. Tell the installer to IGNORE the specific torch version
 RUN export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    mkdir -p /tmp/dummy_torch/torch && \
-    echo 'version = "2.11.0+cpu"' > /tmp/dummy_torch/setup.py && \
-    echo 'from setuptools import setup; setup(name="torch", version="2.11.0+cpu", packages=["torch"])' > /tmp/dummy_torch/setup.py && \
-    touch /tmp/dummy_torch/torch/__init__.py && \
-    /app/env/bin/pip install /tmp/dummy_torch && \
     uv export --no-dev --no-hashes --format requirements-txt > /tmp/reqs.txt && \
     sed -i '/torch/d' /tmp/reqs.txt && \
     uv pip install --python /app/env --no-cache -r /tmp/reqs.txt && \
-    /app/env/bin/pip install --no-cache-dir . gunicorn
+    /app/env/bin/pip install --no-cache-dir gunicorn && \
+    /app/env/bin/pip install --no-cache-dir . --no-deps
 
 # Build Frontend
 WORKDIR /app/frontend
