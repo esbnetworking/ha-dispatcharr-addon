@@ -8,4 +8,3 @@ if [ -f /app/.env ]; then
 fi
 #!/usr/bin/env bashio
 exec su-exec postgres postgres -D /data/db -c unix_socket_directories='/run/postgresql'
-exec su-exec postgres postgres -D /data/db -c unix_socket_directories='/run/postgresql'
