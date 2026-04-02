@@ -40,13 +40,15 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    # 1. Add 'regex' to the explicit core list
+    # 1. Add 'djangorestframework-simplejwt' and 'django-extensions'
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match \
         gunicorn \
         daphne \
         django-cors-headers \
         django-filter \
         djangorestframework \
+        djangorestframework-simplejwt \
+        django-extensions \
         psycopg2-binary \
         redis \
         regex && \
