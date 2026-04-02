@@ -23,7 +23,6 @@ WORKDIR /app
 RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
 
 # Setup Python environment
-RUN python3 -m venv /app/env
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
@@ -34,8 +33,8 @@ RUN export UV_EXTRA_INDEX_URL="" && \
     uv venv /app/env --python 3.13 --clear && \
     uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
     sed -i '/torch/d' requirements.txt && \
-    uv pip install --python /app/env --no-cache -r requirements.txt && \
-    uv pip install --python /app/env gunicorn
+    uv pip install --python /app/env --no-cache --no-project -r requirements.txt && \
+    uv pip install --python /app/env --no-cache --no-project . gunicorn
 
 # Build Frontend
 WORKDIR /app/frontend
