@@ -31,10 +31,12 @@ RUN export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
-    sed -i '/torch/d' requirements.txt && \
-    uv pip install --python /app/env --no-cache --no-project -r requirements.txt && \
-    uv pip install --python /app/env --no-cache --no-project . gunicorn
+    uv export --no-dev --no-hashes --format requirements-txt > /tmp/reqs.txt && \
+    sed -i '/torch/d' /tmp/reqs.txt && \
+    cd /tmp && \
+    uv pip install --python /app/env --no-cache -r reqs.txt && \
+    cd /app && \
+    /app/env/bin/pip install --no-cache-dir . gunicorn
 
 # Build Frontend
 WORKDIR /app/frontend
