@@ -29,6 +29,7 @@ RUN pip install --no-cache-dir uv gunicorn && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
+    uv venv /app/env --python 3.13 && \
     uv export --no-dev --no-hashes --format requirements-txt > requirements.txt && \
     sed -i '/torch/d' requirements.txt && \
     uv pip install --python /app/env --no-cache -r requirements.txt && \
