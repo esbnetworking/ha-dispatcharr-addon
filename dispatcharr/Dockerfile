@@ -40,14 +40,21 @@ ENV PATH="/app/env/bin:$PATH" \
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    # 1. Install gunicorn AND daphne explicitly
-    uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match gunicorn daphne && \
+    # 1. Explicitly install the "Web & API Core" that Django needs
+    uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match \
+        gunicorn \
+        daphne \
+        django-cors-headers \
+        django-filter \
+        djangorestframework \
+        psycopg2-binary \
+        redis && \
     # 2. Extract requirements but strip ML/Torch
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | \
     grep -vE "torch|sentence-transformers|transformers" > /tmp/requirements.txt && \
-    # 3. Install the rest
+    # 3. Install the rest of the list
     uv pip install --python /app/env --no-cache --index-strategy unsafe-best-match -r /tmp/requirements.txt && \
-    # 4. Install the app in editable mode
+    # 4. Final Editable Install
     uv pip install --python /app/env --no-cache --no-deps -e .
 
 # 6. Build Frontend
