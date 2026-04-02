@@ -5,7 +5,7 @@ LABEL io.hass.version="1.0.0" \
       io.hass.type="addon" \
       io.hass.arch="aarch64|amd64"
 
-# 1. System Dependencies (Added sed and uv for the build logic)
+# 1. System Dependencies
 RUN apk add --no-cache \
     python3 py3-pip python3-dev \
     nodejs npm git curl wget \
@@ -18,27 +18,26 @@ RUN apk add --no-cache \
     sed \
     uv
 
-# 2. PostgreSQL Directory Setup
-# This prevents the "could not create lock file" error at runtime
+# 2. Critical Runtime Directories
+# We create /run/postgresql here AND ensure it's writable
 RUN mkdir -p /run/postgresql /data/db && \
     chown -R postgres:postgres /run/postgresql /data/db && \
-    chmod 775 /run/postgresql /data/db
+    chmod 777 /run/postgresql /data/db
 
 WORKDIR /app
 
 # 3. Clone Dispatcharr
 RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
 
-# 4. Python Environment Configuration
-# PYTHONPATH="/app" ensures Django can find the 'apps.api' module
+# 4. Environment Tuning
+# We add /app to PYTHONPATH so 'import apps.api' works correctly
 ENV PATH="/app/env/bin:$PATH" \
     PYTHONPATH="/app" \
     UV_PROJECT_ENVIRONMENT="/app/env" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# 5. Build Python 3.13 Environment & Strip Torch
-# We use uv to grab 3.13 and bypass the broken torch requirement
+# 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
     uv pip install --python /app/env --no-cache gunicorn && \
@@ -51,12 +50,9 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
 WORKDIR /app/frontend
 RUN npm install --legacy-peer-deps && npm run build
 
-# 7. Finalize Add-on Structure
+# 7. Finalize Structure
 WORKDIR /app
 COPY rootfs /
 
-# Ensure scripts are executable
 RUN chmod +x /etc/cont-init.d/*.sh && \
     chmod +x /etc/services.d/*/run
-
-# The container will use your S6 overlay to start Postgres, Redis, and Gunicorn
