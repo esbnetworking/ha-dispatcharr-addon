@@ -26,16 +26,15 @@ RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
-# 1. Setup env and build the 3.13 venv
-# 2. Tell the installer to IGNORE the specific torch version
-RUN export UV_EXTRA_INDEX_URL="" && \
-    export PIP_EXTRA_INDEX_URL="" && \
-    export UV_INDEX_URL="https://pypi.org/simple" && \
+# 1. Setup the 3.13 venv using uv (fastest way to get 3.13)
+# 2. Use standard pip to install EVERYTHING except torch
+# 3. Use --no-deps to force the final install
+RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
-    uv export --no-dev --no-hashes --format requirements-txt > /tmp/reqs.txt && \
-    sed -i '/torch/d' /tmp/reqs.txt && \
-    uv pip install --python /app/env --no-cache -r /tmp/reqs.txt && \
-    /app/env/bin/pip install --no-cache-dir gunicorn && \
+    export PATH="/app/env/bin:$PATH" && \
+    pip install --no-cache-dir gunicorn && \
+    pip install --no-cache-dir . --no-deps && \
+    pip install --no-cache-dir $(grep -v "torch" pyproject.toml | grep -oE '[a-zA-Z0-9_-]+>=[0-9.]+|[a-zA-Z0-9_-]+==[0-9.]+') || true && \
     /app/env/bin/pip install --no-cache-dir . --no-deps
 
 # Build Frontend
