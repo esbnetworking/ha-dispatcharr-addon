@@ -24,9 +24,11 @@ RUN python3 -m venv /app/env
 ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
-# 2. UPDATED: Added the index strategy flag to allow uv to find lxml 6.0.2 on PyPI
+# UPDATED: We force uv to use the standard PyPI and ignore the mismatched HA wheels
 RUN pip install --no-cache-dir uv gunicorn && \
-    uv sync --no-dev --index-strategy unsafe-best-match
+    uv sync --no-dev \
+    --index-url https://pypi.org/simple \
+    --index-strategy unsafe-best-match
 
 # Build Frontend
 WORKDIR /app/frontend
