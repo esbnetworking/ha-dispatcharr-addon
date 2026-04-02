@@ -16,6 +16,15 @@ mkdir -p "$DATA_DIR/m3us"
 mkdir -p "$DATA_DIR/epgs" 
 mkdir -p "$DATA_DIR/plugins"
 
+# Ensure postgres run directory exists
+mkdir -p /run/postgresql
+chown -R postgres:postgres /run/postgresql
+chmod 775 /run/postgresql
+
+# Ensure the DB directory has correct permissions
+mkdir -p /data/db
+chown -R postgres:postgres /data/d
+
 # 2. Bridge mapping (Link HA's /data to the app's expected internal paths)
 ln -sf "$DATA_DIR/media" "$APP_DIR/media"
 ln -sf "$DATA_DIR/logos" "$APP_DIR/logo_cache"
