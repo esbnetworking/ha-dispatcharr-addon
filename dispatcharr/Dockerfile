@@ -26,8 +26,9 @@ ENV PATH="/app/env/bin:$PATH"
 ENV UV_PROJECT_ENVIRONMENT="/app/env"
 
 # CLEAR Home Assistant environment variables and force PyPI
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    source $HOME/.cargo/env && \
+RUN pip install --no-cache-dir uv gunicorn && \
+    USER_BIN=$(python3 -m site --user-base)/bin && \
+    export PATH="$USER_BIN:$PATH" && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
