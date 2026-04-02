@@ -77,5 +77,10 @@ RUN npm install --legacy-peer-deps && npm run build
 WORKDIR /app
 COPY rootfs /
 
-RUN chmod +x /etc/cont-init.d/*.sh && \
-    chmod +x /etc/services.d/*/run
+# Ensure scripts are executable AND strip Windows carriage returns (\r)
+RUN find /etc/services.d -type f -name "run" -exec chmod +x {} + && \
+    find /etc/cont-init.d -type f -name "*.sh" -exec chmod +x {} + && \
+    sed -i 's/\r$//' /etc/services.d/*/run /etc/cont-init.d/*.sh
+
+# Optional: Ensure the postgres socket directory exists for the runtime service
+RUN mkdir -p /run/postgresql && chown postgres:postgres /run/postgresql
