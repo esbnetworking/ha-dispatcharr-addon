@@ -28,9 +28,9 @@ ENV UV_PROJECT_ENVIRONMENT="/app/env"
 RUN pip install --no-cache-dir uv gunicorn && \
     export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
+    export UV_INDEX_URL="https://pypi.org/simple" && \
     uv sync --no-dev \
-    --index-url https://pypi.org/simple \
-    --index-strategy manual
+    --index-strategy first-index
 
 # Build Frontend
 WORKDIR /app/frontend
