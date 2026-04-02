@@ -7,4 +7,4 @@ if [ -f /app/.env ]; then
     export $(grep -v '^#' /app/.env | xargs)
 fi
 #!/usr/bin/with-contenv bashio
-exec redis-server --daemonize no
+exec redis-server /etc/redis.conf
