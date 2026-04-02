@@ -43,8 +43,7 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
     uv pip install --python /app/env --no-cache gunicorn && \
     grep -oE '[a-zA-Z0-9_-]+[>=<]+[0-9.]+' pyproject.toml | grep -v "torch" > /tmp/requirements.txt && \
     uv pip install --python /app/env --no-cache -r /tmp/requirements.txt && \
-    uv pip install --python /app/env --no-cache --no-deps . && \
-    /app/env/bin/python3 -m pip install --no-cache-dir . --no-deps --break-system-packages || true
+    uv pip install --python /app/env --no-cache --no-deps -e .
 
 # 6. Build Frontend
 WORKDIR /app/frontend
