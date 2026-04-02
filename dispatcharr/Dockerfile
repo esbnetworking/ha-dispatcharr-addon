@@ -31,10 +31,15 @@ RUN export UV_EXTRA_INDEX_URL="" && \
     export PIP_EXTRA_INDEX_URL="" && \
     export UV_INDEX_URL="https://pypi.org/simple" && \
     uv venv /app/env --python 3.13 --clear && \
+    mkdir -p /tmp/dummy_torch/torch && \
+    echo 'version = "2.11.0+cpu"' > /tmp/dummy_torch/setup.py && \
+    echo 'from setuptools import setup; setup(name="torch", version="2.11.0+cpu", packages=["torch"])' > /tmp/dummy_torch/setup.py && \
+    touch /tmp/dummy_torch/torch/__init__.py && \
+    /app/env/bin/pip install /tmp/dummy_torch && \
     uv export --no-dev --no-hashes --format requirements-txt > /tmp/reqs.txt && \
     sed -i '/torch/d' /tmp/reqs.txt && \
-    uv pip install --python /app/env --no-cache --no-config -r /tmp/reqs.txt && \
-    /app/env/bin/pip install --no-cache-dir gunicorn .
+    uv pip install --python /app/env --no-cache -r /tmp/reqs.txt && \
+    /app/env/bin/pip install --no-cache-dir . gunicorn
 
 # Build Frontend
 WORKDIR /app/frontend
