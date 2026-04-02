@@ -57,10 +57,16 @@ fi
 
 # 5. Run Migrations & Collectstatic
 bashio::log.info "Running Django migrations..."
+
+# --- ADD THIS LINE ---
+cd "$APP_DIR" || exit 1
+
 # Start Postgres so migrations can actually talk to it
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
 export $(grep -v '^#' "$APP_DIR/.env" | xargs)
+
+# Run the commands using the absolute path to python and the relative path to manage.py
 $PYTHON_BIN manage.py migrate --noinput
 $PYTHON_BIN manage.py collectstatic --noinput
 
