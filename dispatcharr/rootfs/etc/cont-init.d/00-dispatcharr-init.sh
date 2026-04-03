@@ -39,18 +39,25 @@ if [ -z "$(ls -A "$DATA_DIR/db")" ]; then
 fi
 
 # 4. Generate .env file
-if [ ! -f "$APP_DIR/.env" ]; then
-    bashio::log.info "Generating .env file..."
-    
-    # 1. Try to get the key from Home Assistant Options
-    # 2. Fallback to generating a random one if the UI field is empty
-    if bashio::config.has_value 'django_secret_key'; then
-        SECRET=$(bashio::config 'django_secret_key')
-    else
-        SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
-    fi
+# Remove the old one during testing to ensure your new SECRET_KEY format is applied
+rm -f "$APP_DIR/.env" 
 
-    cat <<EOF > "$APP_DIR/.env"
+bashio::log.info "Generating .env file..."
+
+# 1. Try to get the key from Home Assistant Options
+if bashio::config.has_value 'django_secret_key'; then
+    SECRET=$(bashio::config 'django_secret_key')
+else
+    # 2. Fallback to generating a random one
+    SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+fi
+
+# Ensure the secret is not empty before writing
+if [ -z "$SECRET" ] || [ "$SECRET" = "null" ]; then
+    SECRET="fallback-secret-at-least-fifty-characters-long-for-django-safety"
+fi
+
+cat <<EOF > "$APP_DIR/.env"
 SECRET_KEY=$SECRET
 DISPATCHARR_SECRET_KEY=$SECRET
 POSTGRES_DB=dispatcharr
@@ -61,7 +68,9 @@ REDIS_HOST=localhost
 CELERY_BROKER_URL=redis://localhost:6379/0
 DISPATCHARR_ENV=aio
 EOF
-fi
+
+# Crucial: Set permissions so the app can definitely read it
+chmod 644 "$APP_DIR/.env"
 
 # 5. Run Migrations & Collectstatic
 bashio::log.info "Running Django migrations..."
@@ -71,20 +80,24 @@ cd "$APP_DIR" || exit 1
 # Start Postgres temporarily
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-# Get the key from bashio
-CURRENT_SECRET=$(bashio::config 'django_secret_key')
+# FETCH the secret directly from the HA Config
+# If the user hasn't set one, use a fallback so it doesn't crash
+USER_SECRET=$(bashio::config 'django_secret_key')
+if [ "$USER_SECRET" = "null" ] || [ -z "$USER_SECRET" ]; then
+    USER_SECRET="temporary-fallback-secret-key-at-least-fifty-characters-long"
+fi
 
-# FORCE the variables into the python environment directly
-export SECRET_KEY="$CURRENT_SECRET"
-export DISPATCHARR_SECRET_KEY="$CURRENT_SECRET"
+# EXPORT the variables to the current shell environment
+export SECRET_KEY="$USER_SECRET"
+export DISPATCHARR_SECRET_KEY="$USER_SECRET"
 
-# Run migrations with a direct ENV prefix (Double-layered protection)
-env SECRET_KEY="$CURRENT_SECRET" \
-    DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
+# EXECUTE migrations using the 'env' command to ensure Python sees the variables
+env SECRET_KEY="$USER_SECRET" \
+    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
     $PYTHON_BIN manage.py migrate --noinput
 
-env SECRET_KEY="$CURRENT_SECRET" \
-    DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
+env SECRET_KEY="$USER_SECRET" \
+    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
     $PYTHON_BIN manage.py collectstatic --noinput
 
 # Stop Postgres
