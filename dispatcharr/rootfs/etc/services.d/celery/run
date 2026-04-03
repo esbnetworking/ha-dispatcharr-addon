@@ -3,8 +3,9 @@ cd /app
 export PYTHONPATH="/app"
 export PATH="/app/env/bin:$PATH"
 
-# Load your Django/Database settings
-if [ -f /app/.env ]; then
-    export $(grep -v '^#' /app/.env | xargs)
-fi
+# Load environment safely
+set -a
+. /app/.env
+set +a
+
 exec celery -A dispatcharr worker -l info
