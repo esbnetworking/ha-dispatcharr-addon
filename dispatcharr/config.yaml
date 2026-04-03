@@ -15,12 +15,14 @@ arch:
   - amd64
 
 map:
-  - addon_config:rw
+  - type: addon_config
+    path: /app/apps
+    read_only: false
 
 options:
   web_port: 9191
-  log_level: info
+  log_level: INFO
 
 schema:
   web_port: port
-  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  log_level: list(DEBUG|INFO)?
