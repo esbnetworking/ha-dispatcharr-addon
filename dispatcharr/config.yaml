@@ -14,11 +14,6 @@ arch:
   - aarch64
   - amd64
 
-map:
-  - type: addon_config
-    path: /app/apps
-    read_only: false
-
 options:
   web_port: 9191
   log_level: INFO
