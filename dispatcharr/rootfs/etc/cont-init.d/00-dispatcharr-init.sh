@@ -80,31 +80,23 @@ cd "$APP_DIR" || exit 1
 # Start Postgres temporarily
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-# 1. Fetch the secret (ensure it's not the string "null")
+# Get the key from the HA config variable
 USER_SECRET=$(bashio::config 'django_secret_key')
+
+# If it's missing or "null", generate a safe fallback so the app doesn't crash
 if [ "$USER_SECRET" = "null" ] || [ -z "$USER_SECRET" ]; then
     USER_SECRET="temporary-fallback-secret-key-at-least-fifty-characters-long-12345"
 fi
 
-# 2. FORCE write this secret to the .env file right now
-# This stops an old/broken .env from overriding our shell variables
-sed -i "/^SECRET_KEY=/d" "$APP_DIR/.env" 2>/dev/null || true
-echo "SECRET_KEY=$USER_SECRET" >> "$APP_DIR/.env"
-echo "DISPATCHARR_SECRET_KEY=$USER_SECRET" >> "$APP_DIR/.env"
+# Use the 'env' command to force variables into the Python process.
+# We pass both SECRET_KEY and DISPATCHARR_SECRET_KEY to cover all bases.
+env SECRET_KEY="$USER_SECRET" \
+    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
+    $PYTHON_BIN manage.py migrate --noinput
 
-# 3. Export to shell AND use the env command (Overkill, but necessary)
-export SECRET_KEY="$USER_SECRET"
-export DISPATCHARR_SECRET_KEY="$USER_SECRET"
-
-bashio::log.info "Executing manage.py migrate..."
-
-# We use 'python3 -E' to ignore any local python environment variables that might interfere
-# and we pass the variables one last time in the prefix.
-SECRET_KEY="$USER_SECRET" DISPATCHARR_SECRET_KEY="$USER_SECRET" \
-$PYTHON_BIN -E manage.py migrate --noinput
-
-SECRET_KEY="$USER_SECRET" DISPATCHARR_SECRET_KEY="$USER_SECRET" \
-$PYTHON_BIN -E manage.py collectstatic --noinput
+env SECRET_KEY="$USER_SECRET" \
+    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
+    $PYTHON_BIN manage.py collectstatic --noinput
 
 # Stop Postgres
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
