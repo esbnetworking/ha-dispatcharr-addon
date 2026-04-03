@@ -54,30 +54,6 @@ bashio::log.info "Generating random SECRET_KEY"
 WEB_PORT=$(bashio::config 'web_port')
 SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
 
-# 1. Path definitions
-NGINX_CONF="/etc/nginx/http.d/dispatcharr.conf"
-NGINX_TEMPLATE="/etc/nginx/http.d/dispatcharr.conf.template"
-
-# 2. Cleanup old configs to prevent port conflicts
-rm -f "$NGINX_CONF"
-
-if [ -f "$NGINX_TEMPLATE" ]; then
-    bashio::log.info "Applying WEB_PORT ${WEB_PORT} to Nginx template..."
-    
-    # Perform the replacement
-    sed "s/%%WEB_PORT%%/${WEB_PORT}/g" "$NGINX_TEMPLATE" > "$NGINX_CONF"
-    
-    # 3. Double check the result
-    if grep -q "listen ${WEB_PORT}" "$NGINX_CONF"; then
-        bashio::log.info "Nginx configuration generated successfully."
-    else
-        bashio::log.error "Failed to inject port into Nginx config!"
-    fi
-else
-    bashio::log.error "Nginx template not found at $NGINX_TEMPLATE"
-    # Fallback: create a basic one so Nginx doesn't crash the whole add-on
-    echo "server { listen ${WEB_PORT}; location / { return 500 'Template Missing'; } }" > "$NGINX_CONF"
-fi
 # --------------------------------------------------
 # 5. Generate .env file
 # --------------------------------------------------
