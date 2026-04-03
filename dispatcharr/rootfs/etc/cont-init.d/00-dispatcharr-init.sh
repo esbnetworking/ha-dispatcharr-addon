@@ -48,9 +48,10 @@ if [ -z "$(ls -A "$DATA_DIR/db")" ]; then
 fi
 
 # --------------------------------------------------
-# 4. Generate SECRET KEY
+# 4. Generate SECRET KEY and NGINX Config
 # --------------------------------------------------
 bashio::log.info "Generating random SECRET_KEY"
+WEB_PORT=$(bashio::config 'web_port')
 SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
 
 if [ -f "/etc/nginx/http.d/dispatcharr.conf.template" ]; then
