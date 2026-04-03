@@ -11,7 +11,7 @@ PYTHON_BIN="/app/env/bin/python3"
 # 1. Create persistent directories
 # --------------------------------------------------
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" "$DATA_DIR/recordings" \
-         "$DATA_DIR/uploads/m3us" "$DATA_DIR/uploads/epgs" \
+         "$DATA_DIR/m3us" "$DATA_DIR/epgs" \
          "$DATA_DIR/logs" "$DATA_DIR/runtime"
 
 mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
@@ -33,8 +33,11 @@ ln -s "$DATA_DIR/logs" "$APP_DIR/logs"
 ln -sf "$DATA_DIR/runtime" "$APP_DIR/runtime"
 
 # Existing mappings (keep these)
-ln -sf "$USER_DIR/m3us" "$DATA_DIR/uploads/m3us"
-ln -sf "$USER_DIR/epgs" "$DATA_DIR/uploads/epgs"
+rm -rf "$DATA_DIR/m3us"
+rm -rf "$DATA_DIR/epgs"
+
+ln -s "$USER_DIR/m3us" "$DATA_DIR/m3us"
+ln -s "$USER_DIR/epgs" "$DATA_DIR/epgs"
 ln -sf "$USER_DIR/plugins" "$DATA_DIR/plugins"
 ln -sf "$USER_DIR/backups" "$DATA_DIR/backups"
 ln -sf "$USER_DIR/scripts" "$DATA_DIR/scripts"
