@@ -41,10 +41,18 @@ fi
 # 4. Generate .env file
 if [ ! -f "$APP_DIR/.env" ]; then
     bashio::log.info "Generating .env file..."
-    # Use the VENV python to generate the secret
-    SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+    
+    # 1. Try to get the key from Home Assistant Options
+    # 2. Fallback to generating a random one if the UI field is empty
+    if bashio::config.has_value 'django_secret_key'; then
+        SECRET=$(bashio::config 'django_secret_key')
+    else
+        SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+    fi
+
     cat <<EOF > "$APP_DIR/.env"
-DJANGO_SECRET_KEY=$SECRET
+SECRET_KEY=$SECRET
+DISPATCHARR_SECRET_KEY=$SECRET
 POSTGRES_DB=dispatcharr
 POSTGRES_USER=dispatch
 POSTGRES_PASSWORD=secret
