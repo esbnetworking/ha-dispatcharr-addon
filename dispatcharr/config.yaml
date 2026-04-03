@@ -13,7 +13,9 @@ map:
 host_network: true
 options:
   web_port: 9191
+  secret_key: "default-random-key-here"
   log_level: info
 schema:
   web_port: port
+  secret_key: str
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
