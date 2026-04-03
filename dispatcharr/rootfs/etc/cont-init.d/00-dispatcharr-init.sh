@@ -12,10 +12,10 @@ PYTHON_BIN="/app/env/bin/python3"
 # --------------------------------------------------
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" "$DATA_DIR/recordings" \
          "$DATA_DIR/m3us" "$DATA_DIR/epgs" \
-         "$DATA_DIR/logs" "$DATA_DIR/runtime"
+         "$DATA_DIR/logs" "$DATA_DIR/runtime" "$DATA_DIR/exports"
 
 mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
-         "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/uploads"
+         "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/uploads" "$USER_DIR/exports"
 
 # --------------------------------------------------
 # 2. FORCE ALL APP DATA INTO /data (CRITICAL FIX)
@@ -35,6 +35,7 @@ ln -sf "$DATA_DIR/runtime" "$APP_DIR/runtime"
 # Existing mappings (keep these)
 rm -rf "$DATA_DIR/m3us"
 rm -rf "$DATA_DIR/epgs"
+rm -rf "$DATA_DIR/exports"
 
 ln -s "$USER_DIR/m3us" "$DATA_DIR/m3us"
 ln -s "$USER_DIR/epgs" "$DATA_DIR/epgs"
@@ -42,9 +43,11 @@ ln -sf "$USER_DIR/plugins" "$DATA_DIR/plugins"
 ln -sf "$USER_DIR/backups" "$DATA_DIR/backups"
 ln -sf "$USER_DIR/scripts" "$DATA_DIR/scripts"
 ln -sf "$USER_DIR/uploads" "$DATA_DIR/uploads"
+ln -sf "$USER_DIR/exports" "$DATA_DIR/exports"
 
 ln -sf "$DATA_DIR/media" "$APP_DIR/media"
 ln -sf "$DATA_DIR/logos" "$APP_DIR/logo_cache"
+
 
 # --------------------------------------------------
 # 3. PostgreSQL setup
