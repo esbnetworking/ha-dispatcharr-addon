@@ -96,11 +96,6 @@ set +a
 # --------------------------------------------------
 # 7. Run migrations
 # --------------------------------------------------
-bashio::log.info "Waiting for PostgreSQL to be ready..."
-
-until su-exec postgres pg_isready -h localhost -p 5432; do
-  sleep 1
-done
 
 bashio::log.info "Running Django migrations..."
 
