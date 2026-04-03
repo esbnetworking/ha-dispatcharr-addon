@@ -10,7 +10,7 @@ arch:
 init: false
 map:
   - share:rw
-host_network: true  # This is the key for Option 2
+host_network: true
 options:
   web_port: 9191
   log_level: info
