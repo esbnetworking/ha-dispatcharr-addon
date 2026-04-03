@@ -51,8 +51,17 @@ fi
 # 4. Generate SECRET KEY and NGINX Config
 # --------------------------------------------------
 bashio::log.info "Generating random SECRET_KEY"
-WEB_PORT=$(bashio::config 'web_port')
+
 SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+
+WEB_PORT=$(bashio::config 'web_port')
+
+bashio::log.info "Configuring NGINX to use port $WEB_PORT"
+
+TEMPLATE="/app/nginx/dispatcharr.conf.template"
+OUTPUT="/etc/nginx/http.d/dispatcharr.conf"
+
+sed "s/{{WEB_PORT}}/${WEB_PORT}/g" "$TEMPLATE" > "$OUTPUT"
 
 # --------------------------------------------------
 # 5. Generate .env file
