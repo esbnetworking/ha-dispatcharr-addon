@@ -75,30 +75,23 @@ chmod 644 "$APP_DIR/.env"
 # 5. Run Migrations & Collectstatic
 bashio::log.info "Running Django migrations..."
 
-cd "$APP_DIR" || exit 1
+cd "/app" || exit 1
 
 # Start Postgres temporarily
-su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
+su-exec postgres pg_ctl -D "/data/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-# Get the key from the HA config variable
+# Get the key directly from bashio
 USER_SECRET=$(bashio::config 'django_secret_key')
 
-# If it's missing or "null", generate a safe fallback so the app doesn't crash
-if [ "$USER_SECRET" = "null" ] || [ -z "$USER_SECRET" ]; then
-    USER_SECRET="temporary-fallback-secret-key-at-least-fifty-characters-long-12345"
-fi
+# Run migrations with an inline prefix
+SECRET_KEY="$USER_SECRET" DISPATCHARR_SECRET_KEY="$USER_SECRET" \
+/app/env/bin/python3 manage.py migrate --noinput
 
-# Use the 'env' command to force variables into the Python process.
-# We pass both SECRET_KEY and DISPATCHARR_SECRET_KEY to cover all bases.
-env SECRET_KEY="$USER_SECRET" \
-    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
-    $PYTHON_BIN manage.py migrate --noinput
-
-env SECRET_KEY="$USER_SECRET" \
-    DISPATCHARR_SECRET_KEY="$USER_SECRET" \
-    $PYTHON_BIN manage.py collectstatic --noinput
+# Run collectstatic with an inline prefix
+SECRET_KEY="$USER_SECRET" DISPATCHARR_SECRET_KEY="$USER_SECRET" \
+/app/env/bin/python3 manage.py collectstatic --noinput
 
 # Stop Postgres
-su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
+su-exec postgres pg_ctl -D "/data/db" -m fast -w stop
 
 bashio::log.info "Dispatcharr initialization complete."
