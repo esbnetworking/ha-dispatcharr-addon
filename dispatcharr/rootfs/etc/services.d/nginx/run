@@ -1,14 +1,5 @@
 #!/usr/bin/with-contenv bashio
 
-# Fetch the port again to ensure the log is accurate
-WEB_PORT=$(bashio::config 'web_port')
-
-bashio::log.info "Starting Nginx on port ${WEB_PORT}..."
-
-# Optional: Verify the config is valid before starting
-if ! nginx -t; then
-    bashio::log.error "Nginx configuration is invalid! Check your template."
-    exit 1
-fi
+bashio::log.info "Starting Nginx on port 9191"
 
 exec nginx -g "daemon off;"
