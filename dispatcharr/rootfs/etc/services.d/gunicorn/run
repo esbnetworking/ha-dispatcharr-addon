@@ -1,9 +1,16 @@
 #!/usr/bin/with-contenv bashio
 
+# Load the environment variables from the .env file
+if [ -f "/app/.env" ]; then
+    set -a
+    source "/app/.env"
+    set +a
+fi
+
 # Fetch the port from the user's config
 WEB_PORT=$(bashio::config 'web_port')
 
 bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
 
-# Bind Gunicorn to that specific port
+# Bind Gunicorn
 exec /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
