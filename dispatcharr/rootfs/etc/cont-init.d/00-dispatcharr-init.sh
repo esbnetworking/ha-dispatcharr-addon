@@ -96,6 +96,12 @@ set +a
 # --------------------------------------------------
 # 7. Run migrations
 # --------------------------------------------------
+bashio::log.info "Waiting for PostgreSQL to be ready..."
+
+until su-exec postgres pg_isready -h localhost -p 5432; do
+  sleep 1
+done
+
 bashio::log.info "Running Django migrations..."
 
 cd "$APP_DIR" || exit 1
@@ -106,7 +112,7 @@ su-exec postgres pg_ctl -D "$DATA_DIR/db" \
     -w start
 
 # Run Django setup
-/app/env/bin/python3 manage.py migrate --noinput
+/app/env/bin/python3 manage.py migrate --noinput --run-syncdb
 /app/env/bin/python3 manage.py collectstatic --noinput
 
 # Stop postgres (s6 will restart it properly)
