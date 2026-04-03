@@ -1,12 +1,11 @@
 #!/usr/bin/with-contenv bashio
 
-WEB_PORT=$(bashio::config 'web_port')
-USER_SECRET=$(bashio::config 'django_secret_key')
+# Load environment (critical)
+set -a
+. /app/.env
+set +a
 
-
-bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
-
-# Inject the key directly into the gunicorn execution
-exec env SECRET_KEY="$USER_SECRET" \
-         DISPATCHARR_SECRET_KEY="$USER_SECRET" \
-    /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
+exec /app/env/bin/gunicorn dispatcharr.wsgi:application \
+    --bind 0.0.0.0:8000 \
+    --workers 3 \
+    --timeout 300
