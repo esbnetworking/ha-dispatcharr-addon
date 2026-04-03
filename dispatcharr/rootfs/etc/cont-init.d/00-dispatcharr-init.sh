@@ -50,21 +50,20 @@ fi
 # --------------------------------------------------
 # 4. Generate SECRET KEY
 # --------------------------------------------------
-SECRET=$(bashio::config 'django_secret_key')
-
-if [ -z "$SECRET" ] || [ "$SECRET" = "default-random-key-here" ]; then
-    bashio::log.warning "Generating random SECRET_KEY"
-    SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
-fi
+bashio::log.info "Generating random SECRET_KEY"
+SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
 
 # --------------------------------------------------
 # 5. Generate .env file
 # --------------------------------------------------
 bashio::log.info "Generating .env file..."
 
+LOG_LEVEL=$(bashio::config 'log_level')
+
 cat <<EOF > "$APP_DIR/.env"
 SECRET_KEY=$SECRET
 DISPATCHARR_SECRET_KEY=$SECRET
+DISPATCHARR_LOG_LEVEL=$LOG_LEVEL
 DJANGO_SECRET_KEY=$SECRET
 POSTGRES_DB=dispatcharr
 POSTGRES_USER=dispatch
