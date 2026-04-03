@@ -54,7 +54,10 @@ bashio::log.info "Generating random SECRET_KEY"
 WEB_PORT=$(bashio::config 'web_port')
 SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
 
-
+if [ -f "/etc/nginx/http.d/dispatcharr.conf.template" ]; then
+    sed "s/%%WEB_PORT%%/${WEB_PORT}/g" /etc/nginx/http.d/dispatcharr.conf.template > /etc/nginx/http.d/dispatcharr.conf
+    bashio::log.info "Nginx configured to listen on port ${WEB_PORT}"
+fi
 # --------------------------------------------------
 # 5. Generate .env file
 # --------------------------------------------------
