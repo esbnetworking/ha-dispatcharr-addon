@@ -58,7 +58,7 @@ WEB_PORT=$(bashio::config 'web_port')
 
 bashio::log.info "Configuring NGINX to use port $WEB_PORT"
 
-TEMPLATE="/app/nginx/dispatcharr.conf.template"
+TEMPLATE="/etc/nginx/http.d/dispatcharr.conf.template"
 OUTPUT="/etc/nginx/http.d/dispatcharr.conf"
 
 sed "s/{{WEB_PORT}}/${WEB_PORT}/g" "$TEMPLATE" > "$OUTPUT"
