@@ -4,12 +4,9 @@
 WEB_PORT=$(bashio::config 'web_port')
 
 # Fetch the key from the user's config
-export SECRET_KEY=$(bashio::config 'django_secret_key')
+export SECRET_KEY=$(bashio::config 'secret_key')
 
 bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
 
 # Bind Gunicorn to that specific port
-exec /app/env/bin/gunicorn dispatcharr.wsgi:application \
-    --bind 0.0.0.0:${WEB_PORT} \
-    --workers 4 \
-    --worker-class gevent
+exec /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
