@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bashio
 
-bashio::log.info "Starting Nginx on port 9191"
+bashio::log.info "Starting Nginx"
 
 exec nginx -g "daemon off;"
