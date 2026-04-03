@@ -35,7 +35,8 @@ ENV PATH="/app/env/bin:$PATH" \
     PYTHONPATH="/app" \
     UV_PROJECT_ENVIRONMENT="/app/env" \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    DISPATCHARR_DATA_DIR=/data
 
 # 5. Build Python 3.13 Environment
 RUN export UV_INDEX_URL="https://pypi.org/simple" && \
