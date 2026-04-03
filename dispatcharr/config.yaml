@@ -9,7 +9,8 @@ startup: services
 boot: auto
 init: false
 
-host_network: true
+ports:
+  9191/tcp: 9191
 
 arch:
   - aarch64
