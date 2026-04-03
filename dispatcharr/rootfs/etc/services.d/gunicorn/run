@@ -1,16 +1,12 @@
 #!/usr/bin/with-contenv bashio
 
-# Load the environment variables from the .env file
-if [ -f "/app/.env" ]; then
-    set -a
-    source "/app/.env"
-    set +a
-fi
-
-# Fetch the port from the user's config
 WEB_PORT=$(bashio::config 'web_port')
+USER_SECRET=$(bashio::config 'django_secret_key')
+
 
 bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
 
-# Bind Gunicorn
-exec /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
+# Inject the key directly into the gunicorn execution
+exec env SECRET_KEY="$USER_SECRET" \
+         DISPATCHARR_SECRET_KEY="$USER_SECRET" \
+    /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
