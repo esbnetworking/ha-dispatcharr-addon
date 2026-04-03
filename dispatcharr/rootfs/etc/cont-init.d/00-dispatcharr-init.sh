@@ -33,33 +33,34 @@ ln -sf "$DATA_DIR/logos" "$APP_DIR/logo_cache"
 # --------------------------------------------------
 if [ -z "$(ls -A "$DATA_DIR/db")" ]; then
     bashio::log.info "Creating PostgreSQL database..."
-
     su-exec postgres initdb -D "$DATA_DIR/db" -E UTF8
-
-    su-exec postgres pg_ctl -D "$DATA_DIR/db" \
-        -o "-c unix_socket_directories='/run/postgresql'" \
-        -w start
-
+    su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
     su-exec postgres psql -c "CREATE USER dispatch WITH PASSWORD 'secret';"
     su-exec postgres psql -c "CREATE DATABASE dispatcharr OWNER dispatch;"
     su-exec postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE dispatcharr TO dispatch;"
-
     su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
 fi
 
 # --------------------------------------------------
-# 4. Generate SECRET KEY
+# 4. Generate SECRET KEY & Nginx Config
 # --------------------------------------------------
-bashio::log.info "Generating random SECRET_KEY"
+bashio::log.info "Generating environment and Nginx configuration..."
+
+# Get values from HA Config
+WEB_PORT=$(bashio::config 'web_port')
+LOG_LEVEL=$(bashio::config 'log_level')
+
+# Generate the Secret
 SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+
+if [ -f "/etc/nginx/http.d/dispatcharr.conf.template" ]; then
+    sed "s/%%WEB_PORT%%/${WEB_PORT}/g" /etc/nginx/http.d/dispatcharr.conf.template > /etc/nginx/http.d/dispatcharr.conf
+    bashio::log.info "Nginx configured to listen on port ${WEB_PORT}"
+fi
 
 # --------------------------------------------------
 # 5. Generate .env file
 # --------------------------------------------------
-bashio::log.info "Generating .env file..."
-
-LOG_LEVEL=$(bashio::config 'log_level')
-
 cat <<EOF > "$APP_DIR/.env"
 SECRET_KEY=$SECRET
 DISPATCHARR_SECRET_KEY=$SECRET
@@ -77,27 +78,21 @@ EOF
 chmod 644 "$APP_DIR/.env"
 
 # --------------------------------------------------
-# 6. Load environment globally
-# --------------------------------------------------
-set -a
-. "$APP_DIR/.env"
-set +a
-
-# --------------------------------------------------
-# 7. Run migrations
+# 6. Run migrations
 # --------------------------------------------------
 bashio::log.info "Running Django migrations..."
-
 cd "$APP_DIR" || exit 1
 
 # Start postgres temporarily
-su-exec postgres pg_ctl -D "$DATA_DIR/db" \
-    -o "-c unix_socket_directories='/run/postgresql'" \
-    -w start
+su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-# Run Django setup
-/app/env/bin/python3 manage.py migrate --noinput
-/app/env/bin/python3 manage.py collectstatic --noinput
+# USE INLINE EXPORT: This solves the "ImproperlyConfigured" error 
+# by ensuring the key is in the process environment before Python starts.
+SECRET_KEY="$SECRET" DISPATCHARR_SECRET_KEY="$SECRET" \
+$PYTHON_BIN manage.py migrate --noinput
+
+SECRET_KEY="$SECRET" DISPATCHARR_SECRET_KEY="$SECRET" \
+$PYTHON_BIN manage.py collectstatic --noinput
 
 # Stop postgres (s6 will restart it properly)
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
