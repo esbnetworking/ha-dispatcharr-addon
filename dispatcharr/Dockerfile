@@ -73,18 +73,23 @@ RUN export UV_INDEX_URL="https://pypi.org/simple" && \
 WORKDIR /app/frontend
 RUN npm install --legacy-peer-deps && npm run build
 
-# 7. Finalize Structure
+# 7. Finalize Structure & Force Clean Scripts
 WORKDIR /app
 COPY rootfs /
 
-# 1. Strip any hidden Windows characters just in case
-RUN find /etc/services.d -type f -name "run" -exec sed -i 's/\r$//' {} + && \
-    find /etc/cont-init.d -type f -name "*.sh" -exec sed -i 's/\r$//' {} +
+# 1. Strip Windows line endings from EVERYTHING first
+RUN find /etc/services.d -type f -exec sed -i 's/\r$//' {} + && \
+    find /etc/cont-init.d -type f -exec sed -i 's/\r$//' {} +
 
-# 2. FORCE executable permissions on all service scripts and init scripts
+# 2. RE-WRITE Postgres & Redis run scripts to be 100% sure they are clean
+# We use printf here because it is more reliable than echo for shebangs
+RUN printf "#!/usr/bin/with-contenv bashio\nexec su-exec postgres postgres -D /data/db -c unix_socket_directories='/run/postgresql'\n" > /etc/services.d/postgres/run && \
+    printf "#!/usr/bin/with-contenv bashio\nexec redis-server /etc/redis.conf\n" > /etc/services.d/redis/run
+
+# 3. Fix permissions for the whole tree
 RUN chmod -R 755 /etc/services.d && \
     chmod -R 755 /etc/cont-init.d && \
     chmod +x /etc/services.d/*/run /etc/cont-init.d/*.sh
 
-# 3. Ensure the postgres socket directory is owned by the database user
+# 4. Final fix for the Postgres socket directory
 RUN mkdir -p /run/postgresql && chown postgres:postgres /run/postgresql
