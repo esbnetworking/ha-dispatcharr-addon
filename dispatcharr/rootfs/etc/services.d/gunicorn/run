@@ -4,7 +4,7 @@
 WEB_PORT=$(bashio::config 'web_port')
 
 # Fetch the key from the user's config
-export SECRET_KEY=$(bashio::config 'secret_key')
+export SECRET_KEY="8Ebz9PHj1n95CHnj9"
 
 bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
 
