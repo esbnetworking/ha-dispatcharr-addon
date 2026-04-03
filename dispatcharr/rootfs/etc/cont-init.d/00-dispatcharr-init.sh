@@ -68,20 +68,26 @@ bashio::log.info "Running Django migrations..."
 
 cd "$APP_DIR" || exit 1
 
-# Start Postgres so migrations can talk to it
+# Start Postgres temporarily
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-# Fetch the secret directly from bashio to ensure it's available NOW
+# Get the key from bashio
 CURRENT_SECRET=$(bashio::config 'django_secret_key')
 
-# Run migrations and collectstatic by passing the SECRET_KEY as an inline prefix
-SECRET_KEY="$CURRENT_SECRET" DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
-$PYTHON_BIN manage.py migrate --noinput
+# FORCE the variables into the python environment directly
+export SECRET_KEY="$CURRENT_SECRET"
+export DISPATCHARR_SECRET_KEY="$CURRENT_SECRET"
 
-SECRET_KEY="$CURRENT_SECRET" DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
-$PYTHON_BIN manage.py collectstatic --noinput
+# Run migrations with a direct ENV prefix (Double-layered protection)
+env SECRET_KEY="$CURRENT_SECRET" \
+    DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
+    $PYTHON_BIN manage.py migrate --noinput
 
-# Stop Postgres so the S6 service can manage it
+env SECRET_KEY="$CURRENT_SECRET" \
+    DISPATCHARR_SECRET_KEY="$CURRENT_SECRET" \
+    $PYTHON_BIN manage.py collectstatic --noinput
+
+# Stop Postgres
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
 
 bashio::log.info "Dispatcharr initialization complete."
