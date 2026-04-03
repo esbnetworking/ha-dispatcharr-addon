@@ -1,5 +1,9 @@
 #!/usr/bin/with-contenv bashio
-cd /app
-export PYTHONPATH="/app"
-export $(grep -v '^#' /app/.env | xargs)
-exec gunicorn --workers=4 --worker-class=gevent --timeout=300 --bind 0.0.0.0:8000 dispatcharr.wsgi:application
+
+# Fetch the port from the user's config
+WEB_PORT=$(bashio::config 'web_port')
+
+bashio::log.info "Starting Dispatcharr on host port: ${WEB_PORT}"
+
+# Bind Gunicorn to that specific port
+exec /app/env/bin/gunicorn dispatcharr.wsgi:application --bind 0.0.0.0:${WEB_PORT}
