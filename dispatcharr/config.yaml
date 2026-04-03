@@ -10,9 +10,10 @@ arch:
 init: false
 map:
   - share:rw
-ports:
-  9191/tcp: 9191
+host_network: true  # This is the key for Option 2
 options:
+  web_port: 9191
   log_level: info
 schema:
+  web_port: port
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
