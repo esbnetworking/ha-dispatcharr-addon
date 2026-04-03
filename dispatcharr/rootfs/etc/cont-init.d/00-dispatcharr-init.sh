@@ -4,6 +4,7 @@ bashio::log.info "Initializing Dispatcharr environment..."
 
 APP_DIR="/app"
 DATA_DIR="/data"
+USER_DIR="/config"
 PYTHON_BIN="/app/env/bin/python3"
 
 # --------------------------------------------------
@@ -12,6 +13,9 @@ PYTHON_BIN="/app/env/bin/python3"
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" "$DATA_DIR/recordings" \
          "$DATA_DIR/uploads/m3us" "$DATA_DIR/uploads/epgs" "$DATA_DIR/m3us" \
          "$DATA_DIR/epgs" "$DATA_DIR/plugins"
+
+mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
+         "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/uploads"
 
 # Postgres runtime dirs
 mkdir -p /run/postgresql
@@ -25,6 +29,14 @@ chmod 700 /data/db
 # --------------------------------------------------
 # 2. Bridge mapping
 # --------------------------------------------------
+
+ln -sf "$USER_DIR/m3us" "$DATA_DIR/m3us"
+ln -sf "$USER_DIR/epgs" "$DATA_DIR/epgs"
+ln -sf "$USER_DIR/plugins" "$DATA_DIR/plugins"
+ln -sf "$USER_DIR/backups" "$DATA_DIR/backups"
+ln -sf "$USER_DIR/scripts" "$DATA_DIR/scripts"
+ln -sf "$USER_DIR/uploads" "$DATA_DIR/uploads"
+
 ln -sf "$DATA_DIR/media" "$APP_DIR/media"
 ln -sf "$DATA_DIR/logos" "$APP_DIR/logo_cache"
 
