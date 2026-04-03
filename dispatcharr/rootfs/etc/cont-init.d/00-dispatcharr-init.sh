@@ -66,19 +66,28 @@ fi
 # 5. Run Migrations & Collectstatic
 bashio::log.info "Running Django migrations..."
 
-# --- ADD THIS LINE ---
 cd "$APP_DIR" || exit 1
 
 # Start Postgres so migrations can actually talk to it
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -o "-c unix_socket_directories='/run/postgresql'" -w start
 
-export $(grep -v '^#' "$APP_DIR/.env" | xargs)
+# --- IMPROVED ENV LOADING ---
+if [ -f "$APP_DIR/.env" ]; then
+    set -a
+    source "$APP_DIR/.env"
+    set +a
+    bashio::log.info "Loaded .env file for migrations."
+else
+    bashio::log.error "Could not find .env file at $APP_DIR/.env"
+    exit 1
+fi
+# ----------------------------
 
-# Run the commands using the absolute path to python and the relative path to manage.py
+# Run migrations
 $PYTHON_BIN manage.py migrate --noinput
 $PYTHON_BIN manage.py collectstatic --noinput
 
-# Stop Postgres so the S6 service can manage it from here on out
+# Stop Postgres so the S6 service can manage it
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
 
 bashio::log.info "Dispatcharr initialization complete."
