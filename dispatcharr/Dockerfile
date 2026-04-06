@@ -24,10 +24,12 @@ RUN mkdir -p /run/postgresql /data/db && \
     chown -R postgres:postgres /run/postgresql /data/db && \
     chmod 777 /run/postgresql /data/db
 
+ENV DISPATCHARR_VERSION="0.22.1"
+
 WORKDIR /app
 
 # 3. Clone Dispatcharr
-RUN git clone -b main https://github.com/Dispatcharr/Dispatcharr.git .
+RUN git clone --depth 1 --branch v${DISPATCHARR_VERSION} https://github.com/Dispatcharr/Dispatcharr.git .
 
 # 4. Environment Tuning
 # We add /app to PYTHONPATH so 'import apps.api' works correctly
