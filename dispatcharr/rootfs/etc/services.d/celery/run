@@ -8,4 +8,5 @@ set -a
 . /app/.env
 set +a
 
-exec celery -A dispatcharr worker -l info
+cd /app
+exec /app/env/bin/python3 -m celery -A dispatcharr worker -l info --concurrency=1
