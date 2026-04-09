@@ -7,7 +7,6 @@ set -a
 . /app/.env
 set +a
 
-#!/usr/bin/with-contenv bashio
 # Wait for postgres socket
 while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
   sleep 1
