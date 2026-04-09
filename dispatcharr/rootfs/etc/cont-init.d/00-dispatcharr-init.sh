@@ -78,7 +78,10 @@ fi
 # --------------------------------------------------
 # 4. Generate SECRET + NGINX config
 # --------------------------------------------------
-SECRET=$($PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))")
+if [ ! -f "$DATA_DIR/secret_key" ]; then
+    $PYTHON_BIN -c "import secrets; print(secrets.token_urlsafe(64))" > "$DATA_DIR/secret_key"
+fi
+SECRET=$(cat "$DATA_DIR/secret_key")
 
 WEB_PORT=$(bashio::config 'web_port')
 LOG_LEVEL=$(bashio::config 'log_level')
