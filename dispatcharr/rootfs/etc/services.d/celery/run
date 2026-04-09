@@ -8,4 +8,8 @@ set -a
 . /app/.env
 set +a
 
-exec nice -n 5 /app/env/bin/python3 -m celery -A dispatcharr worker -l info --concurrency=1
+until /app/env/bin/python3 manage.py migrate --check >/dev/null 2>&1; do
+  echo "Waiting for migrations..."
+  sleep 2
+done
+exec /app/env/bin/python3 -m celery -A dispatcharr worker -l info --concurrency=1
