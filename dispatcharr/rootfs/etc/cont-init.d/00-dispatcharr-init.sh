@@ -104,7 +104,7 @@ POSTGRES_HOST=/run/postgresql
 REDIS_HOST=localhost
 CELERY_BROKER_URL=redis://localhost:6379/0
 
-DISPATCHARR_ENV=aio
+DISPATCHARR_ENV=modular
 DISPATCHARR_DATA_DIR=/data
 EOF
 
