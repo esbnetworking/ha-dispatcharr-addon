@@ -135,6 +135,9 @@ su-exec postgres pg_ctl -D "$DATA_DIR/db" \
 $PYTHON_BIN manage.py migrate --noinput --run-syncdb
 $PYTHON_BIN manage.py collectstatic --noinput
 
+bashio::log.info "Optimizing database (VACUUM ANALYZE)..."
+su-exec postgres psql -d dispatcharr -c "VACUUM ANALYZE;"
+
 su-exec postgres pg_ctl -D "$DATA_DIR/db" -m fast -w stop
 
 bashio::log.info "Dispatcharr initialization complete."
