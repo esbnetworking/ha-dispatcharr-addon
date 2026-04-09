@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
+cd /app
+
 # Load environment (critical)
 set -a
 . /app/.env
@@ -11,5 +13,4 @@ while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
   sleep 1
 done
 
-cd /app
 exec /app/env/bin/gunicorn --timeout 600 dispatcharr.wsgi:application
