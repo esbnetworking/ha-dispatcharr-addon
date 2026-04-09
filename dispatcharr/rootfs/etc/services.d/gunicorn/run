@@ -12,4 +12,10 @@ while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
   sleep 1
 done
 
-exec /app/env/bin/gunicorn --timeout 600 dispatcharr.wsgi:application
+exec /app/env/bin/gunicorn \
+  --timeout 1200 \
+  --workers 2 \
+  --worker-class gthread \
+  --threads 4 \
+  --bind 0.0.0.0:8000 \
+  dispatcharr.wsgi:application
