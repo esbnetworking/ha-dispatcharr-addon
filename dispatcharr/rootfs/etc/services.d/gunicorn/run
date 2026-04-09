@@ -5,7 +5,11 @@ set -a
 . /app/.env
 set +a
 
-exec /app/env/bin/gunicorn dispatcharr.wsgi:application \
-    --bind 0.0.0.0:8000 \
-    --workers 3 \
-    --timeout 300
+#!/usr/bin/with-contenv bashio
+# Wait for postgres socket
+while [ ! -S /run/postgresql/.s.PGSQL.5432 ]; do
+  sleep 1
+done
+
+cd /app
+exec /app/env/bin/gunicorn --timeout 600 dispatcharr.wsgi:application
