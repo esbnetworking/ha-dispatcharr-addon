@@ -52,8 +52,6 @@ fi
 echo "$(cat "$DATA_DIR/jwt")" > /var/run/s6/container_environment/DJANGO_SECRET_KEY
 echo "$(cat "$DATA_DIR/jwt")" > /var/run/s6/container_environment/DISPATCHARR_SECRET_KEY
 echo "$LOG_LEVEL" > /var/run/s6/container_environment/DISPATCHARR_LOG_LEVEL
-echo "$WEB_PORT" > /var/run/s6/container_environment/NGINX_PORT
-echo "$WEB_PORT" > /var/run/s6/container_environment/PORT
 
 # --------------------------------------------------
 # 5. Final Permission Fixes
