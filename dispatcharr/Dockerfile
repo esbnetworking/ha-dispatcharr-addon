@@ -19,6 +19,7 @@ RUN curl -J -L -o /tmp/bashio.tar.gz https://github.com/hassio-addons/bashio/arc
     && ln -sf /usr/lib/bashio/bashio /usr/bin/bashio \
     && rm -rf /tmp/*
     
-# Copy run.sh into the s6 initialization directory
-COPY run.sh /etc/cont-init.d/99-ha-setup.sh
-RUN chmod +x /etc/cont-init.d/99-ha-setup.sh
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
+
+CMD [ "/run.sh" ]
