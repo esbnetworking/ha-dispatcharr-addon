@@ -10,9 +10,12 @@ WEB_PORT=$(bashio::config 'web_port')
 LOG_LEVEL=$(bashio::config 'log_level')
 
 # --------------------------------------------------
-# 1. Create Persistent Structural Folders
+# 1. Ensure structural folders exist
 # --------------------------------------------------
-# These live in the Add-on's internal persistent storage
+# Create the app directory if it doesn't exist
+mkdir -p "$APP_DIR"
+
+# Create structural folders in HA's persistent storage
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
          "$DATA_DIR/recordings" "$DATA_DIR/logs" \
          "$DATA_DIR/runtime" "$DATA_DIR/exports"
@@ -20,7 +23,6 @@ mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
 # --------------------------------------------------
 # 2. Create User-Facing Share Folders
 # --------------------------------------------------
-# These live in /share/dispatcharr so you can see them via Samba/File Editor
 if [ ! -d "$USER_DIR" ]; then
     bashio::log.info "Creating user share directory at $USER_DIR"
     mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
@@ -29,31 +31,27 @@ fi
 chmod -R 775 "$USER_DIR"
 
 # --------------------------------------------------
-# 3. Critical Remapping (The "Invisible" Bridge)
+# 3. Critical Remapping (The Fix)
 # --------------------------------------------------
-# Official image looks at /app/data; we force it to look at HA's /data
-if [ ! -L "$APP_DIR/data" ]; then
-    bashio::log.info "Linking /app/data to persistent /data"
-    rm -rf "$APP_DIR/data"
-    ln -sf "$DATA_DIR" "$APP_DIR/data"
-fi
+# Use -sf (symbolic force) to create the link regardless of what's there.
+# We map /app/data to point to /data.
+bashio::log.info "Linking /app/data to persistent /data"
+ln -snf "$DATA_DIR" "$APP_DIR/data"
 
-# Link the user folders into the data directory for the app to use
-ln -sf "$USER_DIR/m3us" "$DATA_DIR/m3us"
-ln -sf "$USER_DIR/epgs" "$DATA_DIR/epgs"
-ln -sf "$USER_DIR/plugins" "$DATA_DIR/plugins"
-ln -sf "$USER_DIR/backups" "$DATA_DIR/backups"
+# Link user folders from /share into /data
+ln -snf "$USER_DIR/m3us" "$DATA_DIR/m3us"
+ln -snf "$USER_DIR/epgs" "$DATA_DIR/epgs"
+ln -snf "$USER_DIR/plugins" "$DATA_DIR/plugins"
+ln -snf "$USER_DIR/backups" "$DATA_DIR/backups"
 
 # --------------------------------------------------
 # 4. Persistence & Environment Variables
 # --------------------------------------------------
-# Handle the Secret Key so sessions don't break on restart
 if [ ! -f "$DATA_DIR/jwt" ]; then
     bashio::log.info "Generating persistent Secret Key..."
     echo "$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)" > "$DATA_DIR/jwt"
 fi
 
-# Export variables the official image's entrypoint script expects
 export DJANGO_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_LOG_LEVEL=$LOG_LEVEL
@@ -63,8 +61,7 @@ export PORT=$WEB_PORT
 # --------------------------------------------------
 # 5. Final Permission Fixes
 # --------------------------------------------------
-# PostgreSQL is picky about the database directory permissions
 chown -R root:root "$DATA_DIR"
 chmod 700 "$DATA_DIR/db"
 
-bashio::log.info "Initialization complete. Passing control to Official Entrypoint."
+bashio::log.info "Initialization complete."
