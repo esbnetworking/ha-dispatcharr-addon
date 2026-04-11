@@ -18,10 +18,6 @@ arch:
   - aarch64
   - amd64
 
-options:
-  web_port: 9191
-  log_level: INFO
-
 schema:
   web_port: port
   log_level: list(DEBUG|INFO)?
