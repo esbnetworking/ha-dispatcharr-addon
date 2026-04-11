@@ -59,5 +59,5 @@ echo "$LOG_LEVEL" > /var/run/s6/container_environment/DISPATCHARR_LOG_LEVEL
 chown -R root:root "$DATA_DIR"
 chmod 700 "$DATA_DIR/db"
 
-bashio::log.info "Pre-flight checks complete. Handing over to s6..."
-# Notice that `exec /init` is removed. The script simply exits and s6 takes over.
+
+exec /init
