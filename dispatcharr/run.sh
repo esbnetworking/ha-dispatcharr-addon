@@ -6,16 +6,14 @@ bashio::log.info "Initializing Dispatcharr AIO for Home Assistant..."
 APP_DIR="/app"
 DATA_DIR="/data"
 USER_DIR="/share/dispatcharr"
-WEB_PORT=$(bashio::config 'web_port')
+
 LOG_LEVEL=$(bashio::config 'log_level')
 
 # --------------------------------------------------
 # 1. Ensure structural folders exist
 # --------------------------------------------------
-# Create the app directory if it somehow doesn't exist
 mkdir -p "$APP_DIR"
 
-# Create structural folders in HA's persistent storage
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
          "$DATA_DIR/recordings" "$DATA_DIR/logs" \
          "$DATA_DIR/runtime" "$DATA_DIR/exports"
@@ -31,32 +29,31 @@ fi
 chmod -R 775 "$USER_DIR"
 
 # --------------------------------------------------
-# 3. Critical Remapping (The Fix)
+# 3. Critical Remapping
 # --------------------------------------------------
-# Use -sf (symbolic force) to create the link regardless of what's there.
-# We map /app/data to point to /data.
 bashio::log.info "Linking /app/data to persistent /data"
 ln -snf "$DATA_DIR" "$APP_DIR/data"
 
-# Link user folders from /share into /data
 ln -snf "$USER_DIR/m3us" "$DATA_DIR/m3us"
 ln -snf "$USER_DIR/epgs" "$DATA_DIR/epgs"
 ln -snf "$USER_DIR/plugins" "$DATA_DIR/plugins"
 ln -snf "$USER_DIR/backups" "$DATA_DIR/backups"
 
 # --------------------------------------------------
-# 4. Persistence & Environment Variables
+# 4. Persistence & Environment Variables (The Fix)
 # --------------------------------------------------
 if [ ! -f "$DATA_DIR/jwt" ]; then
     bashio::log.info "Generating persistent Secret Key..."
     echo "$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)" > "$DATA_DIR/jwt"
 fi
 
-export DJANGO_SECRET_KEY=$(cat "$DATA_DIR/jwt")
-export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
-export DISPATCHARR_LOG_LEVEL=$LOG_LEVEL
-export NGINX_PORT=$WEB_PORT
-export PORT=$WEB_PORT
+# In s6-overlay, you MUST write env vars to /var/run/s6/container_environment/ 
+# otherwise the main services started later will not see them.
+echo "$(cat "$DATA_DIR/jwt")" > /var/run/s6/container_environment/DJANGO_SECRET_KEY
+echo "$(cat "$DATA_DIR/jwt")" > /var/run/s6/container_environment/DISPATCHARR_SECRET_KEY
+echo "$LOG_LEVEL" > /var/run/s6/container_environment/DISPATCHARR_LOG_LEVEL
+echo "$WEB_PORT" > /var/run/s6/container_environment/NGINX_PORT
+echo "$WEB_PORT" > /var/run/s6/container_environment/PORT
 
 # --------------------------------------------------
 # 5. Final Permission Fixes
@@ -64,6 +61,5 @@ export PORT=$WEB_PORT
 chown -R root:root "$DATA_DIR"
 chmod 700 "$DATA_DIR/db"
 
-echo "Starting Dispatcharr..."
-
-exec /init
+bashio::log.info "Pre-flight checks complete. Handing over to s6..."
+# Notice that `exec /init` is removed. The script simply exits and s6 takes over.
