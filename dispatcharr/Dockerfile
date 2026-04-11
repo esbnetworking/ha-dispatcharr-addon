@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/dispatcharr/dispatcharr:dev
+ARG BUILD_FROM=ghcr.io/dispatcharr/dispatcharr:latest
 FROM $BUILD_FROM
 
 LABEL io.hass.version="1.0.0" \
