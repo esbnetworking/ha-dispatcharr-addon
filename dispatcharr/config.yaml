@@ -19,5 +19,4 @@ arch:
   - amd64
 
 schema:
-  web_port: port
   log_level: list(DEBUG|INFO)?
