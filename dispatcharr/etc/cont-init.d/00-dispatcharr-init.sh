@@ -55,8 +55,6 @@ fi
 export DJANGO_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_LOG_LEVEL=$LOG_LEVEL
-export NGINX_PORT=$WEB_PORT
-export PORT=$WEB_PORT
 
 # --------------------------------------------------
 # 5. Final Permission Fixes
