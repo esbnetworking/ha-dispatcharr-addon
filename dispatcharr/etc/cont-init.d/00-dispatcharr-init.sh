@@ -6,7 +6,6 @@ bashio::log.info "Initializing Dispatcharr AIO for Home Assistant..."
 APP_DIR="/app"
 DATA_DIR="/data"
 USER_DIR="/share/dispatcharr"
-WEB_PORT=$(bashio::config 'web_port')
 LOG_LEVEL=$(bashio::config 'log_level')
 
 # --------------------------------------------------
