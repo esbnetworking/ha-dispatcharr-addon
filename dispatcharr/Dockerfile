@@ -21,5 +21,5 @@ RUN curl -J -L -o /tmp/bashio.tar.gz https://github.com/hassio-addons/bashio/arc
     
 # Copy your script into the official S6-overlay init folder
 # This ensures it runs BEFORE the app services start
-COPY /etc/cont-init.d/00-dispatcharr-init.sh /etc/cont-init.d/00-dispatcharr-init.sh
-RUN chmod +x /etc/cont-init.d/00-dispatcharr-init.sh
+#COPY /etc/cont-init.d/00-dispatcharr-init.sh /etc/cont-init.d/00-dispatcharr-init.sh
+#RUN chmod +x /etc/cont-init.d/00-dispatcharr-init.sh
