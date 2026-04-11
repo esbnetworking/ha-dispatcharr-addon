@@ -19,7 +19,7 @@ RUN curl -J -L -o /tmp/bashio.tar.gz https://github.com/hassio-addons/bashio/arc
     && ln -sf /usr/lib/bashio/bashio /usr/bin/bashio \
     && rm -rf /tmp/*
     
-COPY run.sh /run.sh
+COPY run.sh /
 RUN chmod +x /run.sh
 
 CMD [ "/run.sh" ]
