@@ -54,14 +54,6 @@ export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 chown -R root:root "$DATA_DIR"
 chmod 700 "$DATA_DIR/db"
 
-# --------------------------------------------------
-# 6. Apply GitHub PR Fix (#1165)
-# --------------------------------------------------
-echo "Applying database query fix from PR #1165..."
-cd /app
-
-# Download the specific commit as a raw patch file and apply it
-curl -sSL "https://github.com/Dispatcharr/Dispatcharr/commit/0d77884758699396e05ba5426f3df570c2af2d35.patch" | patch -p1
 
 echo "Folder mapping complete. Starting Dispatcharr..."
 
