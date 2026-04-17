@@ -1,4 +1,4 @@
-FROM ghcr.io/dispatcharr/dispatcharr:0.22.1-20260411220236
+FROM ghcr.io/dispatcharr/dispatcharr:0.23.0-20260417003113
 LABEL io.hass.version="latest" \
       io.hass.type="addon" \
       io.hass.arch="aarch64|amd64"
