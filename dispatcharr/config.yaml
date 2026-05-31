@@ -1,7 +1,7 @@
 name: "Dispatcharr"
 slug: "dispatcharr"
 description: "Dispatcharr IPTV management"
-version: "1.1.6"
+version: "1.1.8"
 
 startup: services
 boot: auto
