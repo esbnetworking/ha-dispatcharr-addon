@@ -2,6 +2,36 @@
 
 echo "Initializing Dispatcharr AIO for Home Assistant..."
 
+# --------------------------------------------------
+# 0. Hardware Acceleration Permission Fixes
+# --------------------------------------------------
+echo "Aligning container hardware permissions with Home Assistant host..."
+
+# Align the 'render' group (Standard AMD/Intel GPUs)
+if [ -e /dev/dri/renderD128 ]; then
+    HOST_RENDER_GID=$(stat -c '%g' /dev/dri/renderD128)
+    echo "Detected host Render GID: ${HOST_RENDER_GID}"
+    groupmod -g "${HOST_RENDER_GID}" render 2>/dev/null || true
+fi
+
+# Align the 'video' group (Raspberry Pi V4L2 and Standard GPUs)
+if [ -e /dev/dri/card0 ]; then
+    HOST_VIDEO_GID=$(stat -c '%g' /dev/dri/card0)
+    echo "Detected host Video GID (DRI): ${HOST_VIDEO_GID}"
+    groupmod -g "${HOST_VIDEO_GID}" video 2>/dev/null || true
+elif [ -e /dev/video11 ]; then
+    # Fallback for Raspberry Pi V4L2 nodes if DRI card0 is missing
+    HOST_VIDEO_GID=$(stat -c '%g' /dev/video11)
+    echo "Detected host Video GID (V4L2): ${HOST_VIDEO_GID}"
+    groupmod -g "${HOST_VIDEO_GID}" video 2>/dev/null || true
+fi
+
+# Ensure the 'dispatch' user is explicitly added to these groups
+if id "dispatch" &>/dev/null; then
+    usermod -aG video,render dispatch 2>/dev/null || true
+    echo "Added 'dispatch' user to hardware groups."
+fi
+
 # --- Configuration & Paths ---
 APP_DIR="/app"
 DATA_DIR="/data"
