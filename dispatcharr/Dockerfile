@@ -10,12 +10,14 @@ ENV UDEV=1 \
     LIBVA_DRIVER_NAME=render
 
 # Install V4L2 and Mesa drivers
- RUN apt-get update && apt-get install -y --no-install-recommends \
-     v4l-utils \
-     va-driver-all \
-     mesa-va-drivers \
-     libgles2-mesa \
-     && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    v4l-utils \
+    va-driver-all \
+    mesa-va-drivers \
+    libgles2 \
+    libgles2-dev \
+    libgl1-mesa-dri \
+    && rm -rf /var/lib/apt/lists/*
 
 # Fix permissions at runtime
 COPY run.sh /run.sh
