@@ -9,7 +9,7 @@ init: false
 
 
 video: true
-#full_access: true
+full_access: true
 
 ports:
   9191/tcp: 9191
