@@ -1,7 +1,7 @@
 name: "Dispatcharr"
 slug: "dispatcharr"
 description: "Dispatcharr IPTV management"
-version: "1.1.10"
+version: "1.1.10a"
 
 startup: services
 boot: auto
@@ -9,9 +9,9 @@ init: false
 
 
 video: true
+
 privileged:
   - SYS_ADMIN
-  - SYS_RAWIO
 
 ports:
   9191/tcp: 9191
