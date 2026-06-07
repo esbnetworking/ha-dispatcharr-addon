@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     va-driver-all \
     mesa-va-drivers \
     libgles2 \
-    libgles2-dev \
     libgl1-mesa-dri \
     && rm -rf /var/lib/apt/lists/*
 
