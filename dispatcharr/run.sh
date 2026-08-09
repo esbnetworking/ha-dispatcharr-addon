@@ -52,7 +52,7 @@ mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
 if [ ! -d "$USER_DIR" ]; then
     echo "Creating user share directory at $USER_DIR"
     mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
-             "$USER_DIR/backups" "$USER_DIR/scripts"
+             "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/recordings"
 fi
 chmod -R 775 "$USER_DIR"
 
@@ -66,6 +66,7 @@ ln -snf "$USER_DIR/m3us" "$DATA_DIR/m3us"
 ln -snf "$USER_DIR/epgs" "$DATA_DIR/epgs"
 ln -snf "$USER_DIR/plugins" "$DATA_DIR/plugins"
 ln -snf "$USER_DIR/backups" "$DATA_DIR/backups"
+ln -snf "$USER_DIR/recordings" "$DATA_DIR/recordings"
 
 # --------------------------------------------------
 # 4. Persistence & Environment Variables
