@@ -38,28 +38,30 @@ DATA_DIR="/data"
 USER_DIR="/share/dispatcharr"
 
 # --------------------------------------------------
-# 1. Ensure structural folders exist
+# 1. Ensure User-Facing Share Folders Exist
+# --------------------------------------------------
+echo "Ensuring user share directories exist at $USER_DIR..."
+mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
+         "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/recordings"
+
+# --------------------------------------------------
+# 2. Ensure Structural Internal Folders Exist
 # --------------------------------------------------
 mkdir -p "$APP_DIR"
-
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
-         "$DATA_DIR/recordings" "$DATA_DIR/logs" \
-         "$DATA_DIR/runtime" "$DATA_DIR/exports"
+         "$DATA_DIR/logs" "$DATA_DIR/runtime" "$DATA_DIR/exports"
 
-# --------------------------------------------------
-# 2. Create User-Facing Share Folders
-# --------------------------------------------------
-if [ ! -d "$USER_DIR" ]; then
-    echo "Creating user share directory at $USER_DIR"
-    mkdir -p "$USER_DIR/m3us" "$USER_DIR/epgs" "$USER_DIR/plugins" \
-             "$USER_DIR/backups" "$USER_DIR/scripts" "$USER_DIR/recordings"
+# Migrate any existing recordings if /data/recordings was created as a directory
+if [ -d "$DATA_DIR/recordings" ] && [ ! -L "$DATA_DIR/recordings" ]; then
+    echo "Migrating existing recordings to persistent share..."
+    cp -rn "$DATA_DIR/recordings/"* "$USER_DIR/recordings/" 2>/dev/null || true
+    rm -rf "$DATA_DIR/recordings"
 fi
-chmod -R 775 "$USER_DIR"
 
 # --------------------------------------------------
-# 3. Critical Remapping
+# 3. Critical Remapping to /share
 # --------------------------------------------------
-echo "Linking /app/data to persistent /data"
+echo "Linking /app/data to persistent /data..."
 ln -snf "$DATA_DIR" "$APP_DIR/data"
 
 ln -snf "$USER_DIR/m3us" "$DATA_DIR/m3us"
@@ -80,11 +82,18 @@ export DJANGO_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 
 # --------------------------------------------------
-# 5. Final Permission Fixes
+# 5. Final Ownership & Permission Fixes
 # --------------------------------------------------
-chown -R root:root "$DATA_DIR"
-chmod 700 "$DATA_DIR/db"
+echo "Applying runtime permissions for dispatch user..."
 
+# Ensure both /data and /share/dispatcharr are writable by the unprivileged dispatch user
+chown -R dispatch:dispatch "$DATA_DIR"
+chown -R dispatch:dispatch "$USER_DIR"
+chmod -R 775 "$DATA_DIR"
+chmod -R 775 "$USER_DIR"
+
+# PostgreSQL security requirement
+chmod 700 "$DATA_DIR/db" 2>/dev/null || true
 
 echo "Folder mapping complete. Starting Dispatcharr..."
 
