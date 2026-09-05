@@ -51,7 +51,7 @@ mkdir -p "$APP_DIR"
 mkdir -p "$DATA_DIR/db" "$DATA_DIR/logos" "$DATA_DIR/media" \
          "$DATA_DIR/logs" "$DATA_DIR/runtime" "$DATA_DIR/exports"
 
-# Migrate any existing recordings if /data/recordings was created as a directory
+# Migrate legacy directory if /data/recordings is a folder instead of a symlink
 if [ -d "$DATA_DIR/recordings" ] && [ ! -L "$DATA_DIR/recordings" ]; then
     echo "Migrating existing recordings to persistent share..."
     cp -rn "$DATA_DIR/recordings/"* "$USER_DIR/recordings/" 2>/dev/null || true
@@ -82,20 +82,39 @@ export DJANGO_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 export DISPATCHARR_SECRET_KEY=$(cat "$DATA_DIR/jwt")
 
 # --------------------------------------------------
-# 5. Final Ownership & Permission Fixes
+# 5. Pre-Startup Ownership & Permission Fixes
 # --------------------------------------------------
-echo "Applying runtime permissions for dispatch user..."
-
-# Ensure both /data and /share/dispatcharr are writable by the unprivileged dispatch user
+echo "Applying initial runtime permissions..."
 chown -R dispatch:dispatch "$DATA_DIR"
 chown -R dispatch:dispatch "$USER_DIR"
 chmod -R 775 "$DATA_DIR"
 chmod -R 775 "$USER_DIR"
+chmod -R 777 "$USER_DIR/recordings" 2>/dev/null || true
 
 # PostgreSQL security requirement
 chmod 700 "$DATA_DIR/db" 2>/dev/null || true
 
-echo "Folder mapping complete. Starting Dispatcharr..."
+# --------------------------------------------------
+# 6. Post-Boot Watchdog (Automates Terminal Fix)
+# --------------------------------------------------
+# Monitors entrypoint.sh and applies the permission fix immediately
+# after entrypoint.sh finishes user setup, DB migrations, and starts uwsgi.
+(
+    echo "Permission watchdog started: waiting for uwsgi to initialize..."
+    while ! pgrep -f "uwsgi" >/dev/null 2>&1; do
+        sleep 1
+    done
+    
+    # Allow uwsgi & Celery 3 seconds to complete worker spawning
+    sleep 3
+    echo "uwsgi detected. Enforcing DVR recording permissions on /data/recordings..."
+    chown -R dispatch:dispatch "$DATA_DIR/recordings" 2>/dev/null || true
+    chown -R dispatch:dispatch "$USER_DIR/recordings" 2>/dev/null || true
+    chmod -R 777 "$USER_DIR/recordings" 2>/dev/null || true
+    echo "DVR permissions successfully applied."
+) &
 
-# Hand over the container's main process to the official entrypoint
+echo "Folder mapping complete. Starting Dispatcharr entrypoint..."
+
+# Hand over container main process to the official entrypoint
 exec /app/docker/entrypoint.sh
