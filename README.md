@@ -1,6 +1,6 @@
 # Home Assistant Add-on: Dispatcharr
 
-[![GitHub Release](https://img.shields.io/github/v/release/esbnetworking/ha-dispatcharr-addon?style=flat-square)](https://github.com/esbnetworking/ha-dispatcharr-addon/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/esbnetworking/ha-dispatcharr-addon)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg?style=flat-square)](https://github.com/Dispatcharr/Dispatcharr/blob/main/LICENSE)
 [![Home Assistant Add-on](https://img.shields.io/badge/Home%20Assistant-Add--on-blue?style=flat-square&logo=home-assistant)](https://www.home-assistant.io)
 
